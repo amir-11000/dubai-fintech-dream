@@ -113,28 +113,33 @@ const Nav = () => {
             </span>
           </a>
           <nav className="hidden items-center gap-8 text-sm text-silver/70 md:flex">
-            {["Wallet", "Exchange", "Gold", "Crypto", "AI", "Company"].map(
-              (l) => (
-                <a key={l} href="#" className="hover:text-white transition">
-                  {l}
-                </a>
-              )
-            )}
+            {[
+              { l: "Wallet", to: "/wallet" },
+              { l: "Exchange", to: "/exchange" },
+              { l: "Gold", to: "/gold" },
+              { l: "Crypto", to: "/crypto" },
+              { l: "AI Finance", to: "/ai-assistant" },
+              { l: "Social", to: "/social-payments" },
+            ].map((l) => (
+              <Link key={l.l} to={l.to} className="hover:text-white transition">
+                {l.l}
+              </Link>
+            ))}
           </nav>
           <div className="flex items-center gap-2">
-            <a
-              href="#"
+            <Link
+              to="/signin"
               className="hidden rounded-full px-4 py-2 text-sm text-silver/80 hover:text-white md:inline-block"
             >
               Sign in
-            </a>
-            <a
-              href="#cta"
+            </Link>
+            <Link
+              to="/signup"
               className="group inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-ink transition hover:bg-white/90"
             >
               Get started
               <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-            </a>
+            </Link>
           </div>
         </div>
       </Container>
