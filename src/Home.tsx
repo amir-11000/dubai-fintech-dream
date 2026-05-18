@@ -1279,7 +1279,7 @@ const CTA = () => (
 
 /* -------------------------------- Footer --------------------------------- */
 
-const Footer = () => (
+export const Footer = () => (
   <footer className="border-t border-white/5 py-14">
     <Container>
       <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
