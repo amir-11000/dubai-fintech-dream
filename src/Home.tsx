@@ -187,20 +187,20 @@ const Hero = () => {
             crypto, digital gold, AI finance and social payments.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href="#cta"
+            <Link
+              to="/signup"
               className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90"
             >
               Get Started
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              to="/watch-demo"
               className="group inline-flex items-center gap-2 rounded-full glass px-6 py-3.5 text-sm font-medium text-white transition hover:bg-white/10"
             >
               <Play className="h-4 w-4 fill-white" />
               Watch Demo
-            </a>
+            </Link>
           </div>
         </motion.div>
 
