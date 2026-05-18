@@ -712,15 +712,15 @@ const Gold = () => (
             ))}
           </ul>
           <div className="mt-8 flex gap-3">
-            <a
-              href="#"
+            <Link
+              to="/gold"
               className="rounded-full bg-gradient-to-r from-[#f4e4b3] via-[#d6b56a] to-[#8a6a2e] px-5 py-3 text-sm font-medium text-ink"
             >
               Start collecting gold
-            </a>
-            <a href="#" className="rounded-full glass px-5 py-3 text-sm text-white">
+            </Link>
+            <Link to="/gold" className="rounded-full glass px-5 py-3 text-sm text-white">
               View vault terms
-            </a>
+            </Link>
           </div>
         </motion.div>
 
