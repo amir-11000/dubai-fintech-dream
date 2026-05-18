@@ -1258,19 +1258,19 @@ const CTA = () => (
           DIRHAMPAY — building the next generation financial ecosystem.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a
-            href="#"
+          <Link
+            to="/early-access"
             className="group inline-flex items-center gap-2 rounded-full bg-white px-7 py-4 text-sm font-medium text-ink transition hover:bg-white/90"
           >
             Join Early Access
             <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="/contact"
             className="inline-flex items-center gap-2 rounded-full glass px-7 py-4 text-sm text-white transition hover:bg-white/10"
           >
             Contact Us
-          </a>
+          </Link>
         </div>
       </div>
     </Container>
