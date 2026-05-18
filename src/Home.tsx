@@ -1298,20 +1298,20 @@ const Footer = () => (
           </p>
         </div>
         {[
-          { h: "Product", l: ["Wallet", "Exchange", "Gold", "Crypto", "AI"] },
-          { h: "Company", l: ["About", "Careers", "Press", "Contact"] },
-          { h: "Legal", l: ["Terms", "Privacy", "Security", "Licenses"] },
+          { h: "Product", l: [["Wallet","/wallet"], ["Exchange","/exchange"], ["Gold","/gold"], ["Crypto","/crypto"], ["AI Finance","/ai-assistant"]] },
+          { h: "Company", l: [["About","/"], ["Early Access","/early-access"], ["Demo","/watch-demo"], ["Contact","/contact"]] },
+          { h: "Legal", l: [["Terms","/"], ["Privacy","/"], ["Security","/"], ["Sign in","/signin"]] },
         ].map((c) => (
           <div key={c.h}>
             <div className="text-[11px] uppercase tracking-widest text-silver/40">
               {c.h}
             </div>
             <ul className="mt-4 space-y-2">
-              {c.l.map((x) => (
-                <li key={x}>
-                  <a href="#" className="text-sm text-silver/70 hover:text-white">
-                    {x}
-                  </a>
+              {(c.l as [string,string][]).map(([label, to]) => (
+                <li key={label}>
+                  <Link to={to} className="text-sm text-silver/70 hover:text-white">
+                    {label}
+                  </Link>
                 </li>
               ))}
             </ul>
