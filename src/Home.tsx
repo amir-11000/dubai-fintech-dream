@@ -602,9 +602,9 @@ const Exchange = () => {
                 </div>
               </div>
 
-              <button className="mt-5 w-full rounded-2xl bg-white py-3 text-sm font-medium text-ink transition hover:bg-white/90">
+              <Link to="/exchange" className="mt-5 block w-full rounded-2xl bg-white py-3 text-center text-sm font-medium text-ink transition hover:bg-white/90">
                 Exchange now
-              </button>
+              </Link>
 
               {/* Mini graph */}
               <div className="mt-5 rounded-xl bg-white/[0.02] p-3 hairline">
