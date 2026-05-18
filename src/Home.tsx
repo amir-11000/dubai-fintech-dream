@@ -1330,21 +1330,17 @@ export const Footer = () => (
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
-      <Nav />
-      <main>
-        <Hero />
-        <Section2 />
-        <Exchange />
-        <Gold />
-        <Crypto />
-        <AISection />
-        <Social />
-        <WhyDubai />
-        <Mobile />
-        <CTA />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <Hero />
+      <Section2 />
+      <Exchange />
+      <Gold />
+      <Crypto />
+      <AISection />
+      <Social />
+      <WhyDubai />
+      <Mobile />
+      <CTA />
+    </>
   );
 }
