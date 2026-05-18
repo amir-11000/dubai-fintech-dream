@@ -81,7 +81,7 @@ const fadeUp = {
 
 /* --------------------------------- Nav ----------------------------------- */
 
-const Nav = () => {
+export const Nav = () => {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
