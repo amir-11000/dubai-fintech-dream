@@ -101,7 +101,7 @@ const Nav = () => {
             scrolled ? "glass-strong" : ""
           }`}
         >
-          <a href="#" className="flex items-center gap-2.5">
+          <Link to="/" className="flex items-center gap-2.5">
             <div className="relative h-7 w-7">
               <div className="absolute inset-0 rounded-md bg-gradient-to-br from-glow to-white/20 blur-md opacity-70" />
               <div className="relative grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-white/20 to-white/5 hairline">
@@ -111,7 +111,7 @@ const Nav = () => {
             <span className="text-sm font-semibold tracking-[0.18em] text-white">
               DIRHAMPAY
             </span>
-          </a>
+          </Link>
           <nav className="hidden items-center gap-8 text-sm text-silver/70 md:flex">
             {[
               { l: "Wallet", to: "/wallet" },
