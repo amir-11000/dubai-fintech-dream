@@ -105,11 +105,11 @@ export const Nav = () => {
             <div className="relative h-7 w-7">
               <div className="absolute inset-0 rounded-md bg-gradient-to-br from-glow to-white/20 blur-md opacity-70" />
               <div className="relative grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-white/20 to-white/5 hairline">
-                <span className="text-[11px] font-bold text-white">D</span>
+                <span className="text-[11px] font-bold text-white">B</span>
               </div>
             </div>
             <span className="text-sm font-semibold tracking-[0.18em] text-white">
-              DIRHAMPAY
+              BILLY PAY
             </span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-silver/70 md:flex">
@@ -950,7 +950,7 @@ const AISection = () => {
                 <Bot className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-sm text-white">DIRHAMPAY Intelligence</div>
+                <div className="text-sm text-white">BILLY PAY Intelligence</div>
                 <div className="flex items-center gap-1 text-[11px] text-glow">
                   <span className="h-1.5 w-1.5 rounded-full bg-glow" />
                   Online
@@ -1168,7 +1168,7 @@ const WhyDubai = () => (
           </h2>
         </div>
         <p className="text-lg leading-relaxed text-silver/70">
-          DIRHAMPAY is built for global residents, modern travelers and
+          BILLY PAY is built for global residents, modern travelers and
           digital-native users — at the center of the world's most ambitious
           financial city. Engineered in Dubai, designed for everywhere.
         </p>
@@ -1213,7 +1213,7 @@ const Mobile = () => {
           <div className="absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-glow/15 blur-3xl" />
           <img
             src={iphonesDuo}
-            alt="DIRHAMPAY mobile app"
+            alt="BILLY PAY mobile app"
             loading="lazy"
             className="mx-auto w-full max-w-4xl"
           />
@@ -1255,7 +1255,7 @@ const CTA = () => (
           <span className="text-gradient-blue">intelligent, seamless and borderless.</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg text-silver/70">
-          DIRHAMPAY — building the next generation financial ecosystem.
+          BILLY PAY — building the next generation financial ecosystem.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
@@ -1289,7 +1289,7 @@ export const Footer = () => (
               D
             </div>
             <span className="text-sm font-semibold tracking-[0.18em] text-white">
-              DIRHAMPAY
+              BILLY PAY
             </span>
           </div>
           <p className="mt-4 max-w-xs text-sm text-silver/60">
@@ -1319,7 +1319,7 @@ export const Footer = () => (
         ))}
       </div>
       <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/5 pt-6 text-xs text-silver/40 md:flex-row md:items-center">
-        <div>© {new Date().getFullYear()} DIRHAMPAY. All rights reserved.</div>
+        <div>© {new Date().getFullYear()} BILLY PAY. All rights reserved.</div>
         <div>Dubai · United Arab Emirates</div>
       </div>
     </Container>

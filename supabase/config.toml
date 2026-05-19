@@ -1,0 +1,4 @@
+project_id = "vbnjppghdbgbysxqpqwx"
+
+[functions.ask-billy]
+verify_jwt = false

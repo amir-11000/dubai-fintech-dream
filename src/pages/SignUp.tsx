@@ -1,9 +1,11 @@
 import { useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PageShell, PageHeader, GlowCard, Field, PrimaryButton, SuccessToast } from "../components/ui";
+import { useStore } from "../lib/store";
 
 export default function SignUp() {
   const nav = useNavigate();
+  const { signIn } = useStore();
   const [form, setForm] = useState({ name: "", email: "", phone: "", country: "United Arab Emirates", password: "" });
   const set = (k: string) => (v: string) => setForm({ ...form, [k]: v });
   const [loading, setLoading] = useState(false);
@@ -12,7 +14,10 @@ export default function SignUp() {
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => { setLoading(false); setOk(true); setTimeout(() => nav("/wallet"), 1100); }, 900);
+    setTimeout(() => {
+      setLoading(false); setOk(true); signIn(form.name || undefined);
+      setTimeout(() => nav("/app"), 800);
+    }, 800);
   };
 
   return (
