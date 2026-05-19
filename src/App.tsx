@@ -44,9 +44,6 @@ export default function App() {
           </Route>
 
           {/* Public marketing + auth */}
-          <Route element={<Layout>{null}</Layout>}>
-            {/* fallthrough children rendered below */}
-          </Route>
           <Route path="/" element={<Layout><Home /></Layout>} />
           <Route path="/signin" element={<Layout><SignIn /></Layout>} />
           <Route path="/signup" element={<Layout><SignUp /></Layout>} />
