@@ -25,6 +25,7 @@ import {
   Map,
   Rocket,
 } from "lucide-react";
+void Users;
 import skyline from "./assets/dubai-skyline.jpg";
 import goldBars from "./assets/gold-bars.jpg";
 import iphonesDuo from "./assets/iphones-duo.png";
