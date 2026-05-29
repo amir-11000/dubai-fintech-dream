@@ -22,12 +22,12 @@ export default function SignUp() {
 
   return (
     <PageShell>
-      <PageHeader eyebrow="Join early access" title={<>Create your <span className="text-gradient-blue">DIRHAMPAY</span> account</>} sub="A premium onboarding to the future of finance." />
+      <PageHeader eyebrow="Join early access" title={<>Create your <span className="text-gradient-blue">SHOHO PAY</span> account</>} sub="A premium onboarding to the future of finance." />
       <div className="mx-auto mt-12 max-w-xl">
         <GlowCard>
           <form onSubmit={submit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="md:col-span-2"><Field label="Full name" placeholder="Khalid Al Mansoori" value={form.name} onChange={set("name")} required /></div>
-            <Field label="Email" type="email" placeholder="you@dirhampay.com" value={form.email} onChange={set("email")} required />
+            <Field label="Email" type="email" placeholder="you@shohopay.com" value={form.email} onChange={set("email")} required />
             <Field label="Phone" type="tel" placeholder="+971 50 000 0000" value={form.phone} onChange={set("phone")} required />
             <label className="block md:col-span-2">
               <span className="mb-1.5 block text-[11px] uppercase tracking-widest text-silver/60">Country</span>
@@ -38,7 +38,7 @@ export default function SignUp() {
             <div className="md:col-span-2"><Field label="Password" type="password" placeholder="Minimum 8 characters" value={form.password} onChange={set("password")} required /></div>
             <div className="md:col-span-2"><PrimaryButton type="submit" loading={loading}>Create Account</PrimaryButton></div>
           </form>
-          <SuccessToast show={ok} text="Account created. Welcome to DIRHAMPAY." />
+          <SuccessToast show={ok} text="Account created. Welcome to SHOHO PAY." />
           <p className="mt-5 text-center text-xs text-silver/60">
             Already a member? <Link to="/signin" className="text-glow hover:underline">Sign in</Link>
           </p>

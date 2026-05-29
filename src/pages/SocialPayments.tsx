@@ -41,7 +41,7 @@ export default function SocialPayments() {
                     <div className={`grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br ${c.c} text-sm font-semibold text-white`}>{c.a}</div>
                     <div className="text-sm text-white">{c.n}</div>
                   </div>
-                  <span className="text-[11px] text-glow">DIRHAMPAY</span>
+                  <span className="text-[11px] text-glow">SHOHO PAY</span>
                 </button>
               </li>
             ))}

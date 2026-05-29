@@ -13,7 +13,7 @@ const features = [
 export default function WatchDemo() {
   return (
     <PageShell>
-      <PageHeader eyebrow="Cinematic walkthrough" title={<>See DIRHAMPAY <span className="text-gradient-blue">in motion.</span></>} sub="A 90-second glimpse of the future financial lifestyle ecosystem." />
+      <PageHeader eyebrow="Cinematic walkthrough" title={<>See SHOHO PAY <span className="text-gradient-blue">in motion.</span></>} sub="A 90-second glimpse of the future financial lifestyle ecosystem." />
 
       <div className="mx-auto mt-12 max-w-5xl">
         <GlowCard className="overflow-hidden p-0">
