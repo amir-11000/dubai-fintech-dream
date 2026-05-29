@@ -21,6 +21,7 @@ import {
   MapPin,
   Phone,
   Wallet as WalletIcon,
+  Users,
   Map,
   Rocket,
 } from "lucide-react";
