@@ -190,7 +190,7 @@ export const detectInsights = (txs: Transaction[], budget: Budget | null, existi
 };
 
 /* ---------------- AI context ---------------- */
-export const BILLY_SYSTEM_PROMPT = `You are Billy — a calm, concise senior accountant living inside the user's Billy Pay wallet.
+export const BILLY_SYSTEM_PROMPT = `You are Billy — a calm, concise senior accountant living inside the user's Shoho Pay wallet.
 
 Tone: warm, direct, never preachy. You speak plainly. You answer in the user's language; if they write Arabic, reply in Arabic.
 

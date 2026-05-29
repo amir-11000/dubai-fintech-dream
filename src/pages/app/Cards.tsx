@@ -39,7 +39,7 @@ export default function CardsPage() {
           <motion.div key={c.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${c.gradient} p-6 shadow-2xl`}>
             {c.frozen && <div className="absolute inset-0 z-10 grid place-items-center bg-ink/60 backdrop-blur-sm"><Snowflake className="h-10 w-10 text-glow" /></div>}
             <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-white/60">
-              <span>Billy Pay · {c.type}</span>
+              <span>Shoho Pay · {c.type}</span>
               <span>Visa</span>
             </div>
             <div className="mt-8 font-display text-xl tracking-[0.18em] text-white">{reveal[c.id] ? c.number.replace(/•/g, "8") : c.number}</div>

@@ -22,11 +22,11 @@ export default function SignIn() {
 
   return (
     <PageShell>
-      <PageHeader eyebrow="Welcome back" title={<>Sign in to <span className="text-gradient-gold">Billy Pay</span></>} sub="Your AI accountant is waiting." />
+      <PageHeader eyebrow="Welcome back" title={<>Sign in to <span className="text-gradient-gold">Shoho Pay</span></>} sub="Your AI accountant is waiting." />
       <div className="mx-auto mt-12 max-w-md">
         <GlowCard>
           <form onSubmit={submit} className="space-y-4">
-            <Field label="Email" type="email" placeholder="you@billypay.com" value={email} onChange={setEmail} required />
+            <Field label="Email" type="email" placeholder="you@shohopay.com" value={email} onChange={setEmail} required />
             <Field label="Password" type="password" placeholder="••••••••" value={pwd} onChange={setPwd} required />
             <div className="flex justify-end">
               <Link to="/signin" className="text-xs text-silver/60 hover:text-glow">Forgot password?</Link>

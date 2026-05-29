@@ -38,7 +38,7 @@ export const AppShell = ({ children }: { children?: ReactNode }) => {
         <div className="flex items-center justify-between px-5 py-3">
           <Link to="/app" className="flex items-center gap-2.5">
             <BillyMark size={28} />
-            <span className="text-sm font-semibold tracking-[0.18em] text-white">BILLY PAY</span>
+            <span className="text-sm font-semibold tracking-[0.18em] text-white">SHOHO PAY</span>
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {topNav.map((l) => (

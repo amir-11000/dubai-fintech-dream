@@ -42,7 +42,7 @@ export default function AIAssistant() {
           <div className="mb-4 flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-full bg-glow/15 text-glow"><Bot className="h-5 w-5" /></div>
             <div>
-              <div className="text-sm text-white">DIRHAMPAY Intelligence</div>
+              <div className="text-sm text-white">SHOHO PAY Intelligence</div>
               <div className="flex items-center gap-1 text-[11px] text-glow"><span className="h-1.5 w-1.5 rounded-full bg-glow" /> Online</div>
             </div>
           </div>

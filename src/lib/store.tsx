@@ -125,7 +125,7 @@ type Ctx = {
 
 const StoreCtx = createContext<Ctx | null>(null);
 
-const LS_KEY = "billypay-state-v1";
+const LS_KEY = "shohopay-state-v1";
 
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initial, (s) => {

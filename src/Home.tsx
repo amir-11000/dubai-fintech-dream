@@ -128,7 +128,7 @@ export const Nav = () => {
                   <span className="text-[11px] font-bold text-white">D</span>
                 </div>
               </div>
-              <span className="text-sm font-semibold tracking-[0.18em] text-white">DIRHAMPAY</span>
+              <span className="text-sm font-semibold tracking-[0.18em] text-white">SHOHO PAY</span>
             </button>
             <nav className="hidden items-center gap-7 text-sm text-silver/70 lg:flex">
               {navItems.map((l) => (
@@ -142,7 +142,7 @@ export const Nav = () => {
                 Get Updates
               </button>
               <button onClick={() => scrollToId("overview")} className="group inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-ink transition hover:bg-white/90">
-                Explore DIRHAMPAY
+                Explore SHOHO PAY
                 <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
               </button>
             </div>
@@ -182,14 +182,14 @@ const UpdatesModal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, 
   return (
     <Modal open={open} onClose={onClose}>
       <Eyebrow>Stay informed</Eyebrow>
-      <h3 className="mt-4 text-2xl font-semibold tracking-tight text-gradient-silver md:text-3xl">Get DIRHAMPAY updates.</h3>
+      <h3 className="mt-4 text-2xl font-semibold tracking-tight text-gradient-silver md:text-3xl">Get SHOHO PAY updates.</h3>
       <p className="mt-2 text-sm text-silver/70">Be first to receive launch announcements, product updates and ecosystem milestones.</p>
 
       {ok ? (
         <div className="mt-6 rounded-2xl border border-glow/30 bg-glow/10 p-5 text-center">
           <CheckCircle2 className="mx-auto h-8 w-8 text-glow" />
           <div className="mt-3 text-base font-medium text-white">Thank you.</div>
-          <div className="mt-1 text-sm text-silver/70">You'll receive DIRHAMPAY updates and launch announcements.</div>
+          <div className="mt-1 text-sm text-silver/70">You'll receive SHOHO PAY updates and launch announcements.</div>
         </div>
       ) : (
         <form onSubmit={submit} className="mt-6 space-y-3">
@@ -225,7 +225,7 @@ const FieldInput: React.FC<{ label: string; type?: string; value: string; onChan
 const DemoModal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => (
   <Modal open={open} onClose={onClose} size="lg">
     <Eyebrow>Cinematic preview</Eyebrow>
-    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-gradient-silver md:text-3xl">DIRHAMPAY Product Experience <span className="text-gradient-blue">Coming Soon</span></h3>
+    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-gradient-silver md:text-3xl">SHOHO PAY Product Experience <span className="text-gradient-blue">Coming Soon</span></h3>
     <p className="mt-2 text-sm text-silver/70">A glimpse into the future financial lifestyle ecosystem being built from Dubai.</p>
 
     <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#0c1220] via-[#0a0d18] to-black hairline">
@@ -284,7 +284,7 @@ const Hero: React.FC<{ onWatchDemo: () => void }> = ({ onWatchDemo }) => {
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <button onClick={() => scrollToId("overview")} className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90">
-              Explore DIRHAMPAY
+              Explore SHOHO PAY
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </button>
             <button onClick={onWatchDemo} className="group inline-flex items-center gap-2 rounded-full glass px-6 py-3.5 text-sm font-medium text-white transition hover:bg-white/10">
@@ -465,7 +465,7 @@ const Overview = () => (
       <SectionHeader
         eyebrow="Product overview"
         title={<>One ecosystem. <span className="text-gradient-blue">Six pillars.</span></>}
-        sub="DIRHAMPAY is being designed as a single intelligent platform that brings every part of your financial life into one premium experience."
+        sub="SHOHO PAY is being designed as a single intelligent platform that brings every part of your financial life into one premium experience."
       />
       <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {overviewPillars.map((p, i) => (
@@ -501,7 +501,7 @@ const Principles = () => (
       <SectionHeader
         eyebrow="Engineering principles"
         title={<>Built for trust, <span className="text-gradient-blue">speed and clarity.</span></>}
-        sub="The technical and design principles guiding the DIRHAMPAY ecosystem from day one."
+        sub="The technical and design principles guiding the SHOHO PAY ecosystem from day one."
       />
       <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
         {[
@@ -649,7 +649,7 @@ const Gold = () => (
             <span className="text-gradient-gold">Gram by gram.</span>
           </h2>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-silver/70">
-            DIRHAMPAY is designing a digital gold experience where 24k investment-grade gold can be bought, held and redeemed — vaulted in regulated custody.
+            SHOHO PAY is designing a digital gold experience where 24k investment-grade gold can be bought, held and redeemed — vaulted in regulated custody.
           </p>
           <ul className="mt-7 space-y-3">
             {["Concept: start from 1 gram, no minimums.", "Concept: fully insured, vaulted custody.", "Concept: redeem physical bars or request delivery."].map((t) => (
@@ -773,7 +773,7 @@ const AISection = () => {
             <div className="mb-4 flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-full bg-glow/15 text-glow"><Bot className="h-5 w-5" /></div>
               <div>
-                <div className="text-sm text-white">DIRHAMPAY Intelligence</div>
+                <div className="text-sm text-white">SHOHO PAY Intelligence</div>
                 <div className="flex items-center gap-1 text-[11px] text-silver/50">Interface concept</div>
               </div>
             </div>
@@ -908,7 +908,7 @@ const WhyDubai = () => (
           </h2>
         </div>
         <p className="text-lg leading-relaxed text-silver/70">
-          DIRHAMPAY is being built for global residents, modern travelers and digital-native users — at the center of the world's most ambitious financial city. Engineered in Dubai, designed for everywhere.
+          SHOHO PAY is being built for global residents, modern travelers and digital-native users — at the center of the world's most ambitious financial city. Engineered in Dubai, designed for everywhere.
         </p>
       </div>
 
@@ -944,7 +944,7 @@ const Mobile = () => {
         />
         <motion.div style={{ y }} className="relative mt-16">
           <div className="absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-glow/15 blur-3xl" />
-          <img src={iphonesDuo} alt="DIRHAMPAY mobile interface concept" loading="lazy" className="mx-auto w-full max-w-4xl" />
+          <img src={iphonesDuo} alt="SHOHO PAY mobile interface concept" loading="lazy" className="mx-auto w-full max-w-4xl" />
         </motion.div>
 
         <div className="mx-auto mt-8 grid max-w-4xl grid-cols-1 gap-4 md:grid-cols-3">
@@ -969,7 +969,7 @@ const Mobile = () => {
 const roadmap = [
   { phase: "Phase 01", title: "Foundation", body: "Brand, vision and ecosystem architecture established. Investor and partnership conversations." },
   { phase: "Phase 02", title: "Early Access", body: "Closed waitlist opens. Onboarding for first residents, businesses and design partners." },
-  { phase: "Phase 03", title: "Wallet Launch", body: "Public release of the DIRHAMPAY wallet — AED-first, multi-currency, AI-assisted." },
+  { phase: "Phase 03", title: "Wallet Launch", body: "Public release of the SHOHO PAY wallet — AED-first, multi-currency, AI-assisted." },
   { phase: "Phase 04", title: "Full Ecosystem", body: "Gold, crypto, social payments and the AI financial assistant unified in one platform." },
 ];
 
@@ -979,7 +979,7 @@ const Roadmap = () => (
       <SectionHeader
         eyebrow="Future roadmap"
         title={<>A staged path to a <span className="text-gradient-blue">complete ecosystem.</span></>}
-        sub="DIRHAMPAY is being built deliberately — premium, regulated and global from day one."
+        sub="SHOHO PAY is being built deliberately — premium, regulated and global from day one."
       />
       <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {roadmap.map((r, i) => (
@@ -1017,7 +1017,7 @@ const EarlyAccess = () => {
       <Container>
         <SectionHeader
           eyebrow="Early access · Investor interest"
-          title={<>Join the <span className="text-gradient-blue">DIRHAMPAY</span> waitlist.</>}
+          title={<>Join the <span className="text-gradient-blue">SHOHO PAY</span> waitlist.</>}
           sub="Be among the first to experience the future of finance from Dubai — or open a conversation about partnership and investment."
         />
 
@@ -1027,7 +1027,7 @@ const EarlyAccess = () => {
               <div className="rounded-2xl border border-glow/30 bg-glow/10 p-6 text-center">
                 <CheckCircle2 className="mx-auto h-10 w-10 text-glow" />
                 <div className="mt-4 text-lg font-medium text-white">Thank you.</div>
-                <div className="mt-1 text-sm text-silver/70">You're on the {type.toLowerCase()} list. The DIRHAMPAY team in Dubai will be in touch.</div>
+                <div className="mt-1 text-sm text-silver/70">You're on the {type.toLowerCase()} list. The SHOHO PAY team in Dubai will be in touch.</div>
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-4">
@@ -1106,11 +1106,11 @@ const Contact = () => {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.1 }} className="rounded-3xl glass-strong p-6 md:p-8 lg:col-span-2">
-            <div className="text-[11px] uppercase tracking-widest text-silver/60">DIRHAMPAY HQ</div>
+            <div className="text-[11px] uppercase tracking-widest text-silver/60">SHOHO PAY HQ</div>
             <div className="mt-2 text-2xl font-semibold text-gradient-silver">Dubai · DIFC</div>
             <div className="mt-6 space-y-4 text-sm text-silver/80">
               <div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 text-glow" /> Gate Village 10, DIFC, Dubai, UAE</div>
-              <div className="flex items-start gap-3"><Mail className="mt-0.5 h-4 w-4 text-glow" /> hello@dirhampay.com</div>
+              <div className="flex items-start gap-3"><Mail className="mt-0.5 h-4 w-4 text-glow" /> hello@shohopay.com</div>
               <div className="flex items-start gap-3"><Phone className="mt-0.5 h-4 w-4 text-glow" /> +971 4 000 0000</div>
             </div>
             <div className="mt-6 rounded-2xl bg-white/[0.03] p-4 hairline text-xs text-silver/60">
@@ -1142,7 +1142,7 @@ const CTA = () => (
           <span className="text-gradient-blue">intelligent, seamless and borderless.</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg text-silver/70">
-          DIRHAMPAY — building the next generation financial ecosystem from Dubai.
+          SHOHO PAY — building the next generation financial ecosystem from Dubai.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button onClick={() => scrollToId("early-access")} className="group inline-flex items-center gap-2 rounded-full bg-white px-7 py-4 text-sm font-medium text-ink transition hover:bg-white/90">
@@ -1167,7 +1167,7 @@ export const Footer = () => (
         <div className="col-span-2">
           <div className="flex items-center gap-2.5">
             <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-white/20 to-white/5 hairline text-[11px] font-bold text-white">D</div>
-            <span className="text-sm font-semibold tracking-[0.18em] text-white">DIRHAMPAY</span>
+            <span className="text-sm font-semibold tracking-[0.18em] text-white">SHOHO PAY</span>
           </div>
           <p className="mt-4 max-w-xs text-sm text-silver/60">
             The future financial lifestyle ecosystem — built in Dubai, designed for the world.
@@ -1191,7 +1191,7 @@ export const Footer = () => (
         ))}
       </div>
       <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/5 pt-6 text-xs text-silver/40 md:flex-row md:items-center">
-        <div>© {new Date().getFullYear()} DIRHAMPAY. All rights reserved.</div>
+        <div>© {new Date().getFullYear()} SHOHO PAY. All rights reserved.</div>
         <div>Dubai · United Arab Emirates</div>
       </div>
     </Container>

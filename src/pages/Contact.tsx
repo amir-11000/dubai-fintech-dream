@@ -34,11 +34,11 @@ export default function Contact() {
         </GlowCard>
 
         <GlowCard className="lg:col-span-2">
-          <div className="text-[11px] uppercase tracking-widest text-silver/60">DIRHAMPAY HQ</div>
+          <div className="text-[11px] uppercase tracking-widest text-silver/60">SHOHO PAY HQ</div>
           <div className="mt-2 text-2xl font-semibold text-gradient-silver">Dubai · DIFC</div>
           <div className="mt-6 space-y-4 text-sm text-silver/80">
             <div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 text-glow" /> Gate Village 10, DIFC, Dubai, UAE</div>
-            <div className="flex items-start gap-3"><Mail className="mt-0.5 h-4 w-4 text-glow" /> hello@dirhampay.com</div>
+            <div className="flex items-start gap-3"><Mail className="mt-0.5 h-4 w-4 text-glow" /> hello@shohopay.com</div>
             <div className="flex items-start gap-3"><Phone className="mt-0.5 h-4 w-4 text-glow" /> +971 4 000 0000</div>
           </div>
           <div className="mt-6 rounded-2xl bg-white/[0.03] p-4 hairline text-xs text-silver/60">

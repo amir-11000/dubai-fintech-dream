@@ -18,7 +18,7 @@ export default function EarlyAccess() {
 
   return (
     <PageShell>
-      <PageHeader eyebrow="Early access · Limited" title={<>Join the <span className="text-gradient-blue">DIRHAMPAY waitlist.</span></>} sub="Be among the first to experience the future of finance from Dubai." />
+      <PageHeader eyebrow="Early access · Limited" title={<>Join the <span className="text-gradient-blue">SHOHO PAY waitlist.</span></>} sub="Be among the first to experience the future of finance from Dubai." />
 
       <div className="mx-auto mt-12 max-w-xl">
         <GlowCard>
