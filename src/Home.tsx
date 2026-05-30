@@ -1166,7 +1166,7 @@ export const Footer = () => (
       <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
         <div className="col-span-2">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-white/20 to-white/5 hairline text-[11px] font-bold text-white">D</div>
+            <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-white/20 to-white/5 hairline text-[10px] font-bold text-white">SH</div>
             <span className="text-sm font-semibold tracking-[0.18em] text-white">SHOHO PAY</span>
           </div>
           <p className="mt-4 max-w-xs text-sm text-silver/60">
