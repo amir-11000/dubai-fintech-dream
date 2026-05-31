@@ -138,6 +138,9 @@ export const Nav = () => {
               ))}
             </nav>
             <div className="flex items-center gap-2">
+              <a href="/auth" className="hidden rounded-full px-4 py-2 text-sm text-silver/80 hover:text-white md:inline-block">
+                Sign in
+              </a>
               <button onClick={() => open("updates")} className="hidden rounded-full px-4 py-2 text-sm text-silver/80 hover:text-white md:inline-block">
                 Get Updates
               </button>
@@ -1063,10 +1066,16 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(false);
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => { setLoading(false); setOk(true); }, 900);
+    const { supabase } = await import("./integrations/supabase/client");
+    const { error } = await supabase.from("contact_messages").insert({
+      name: form.name, email: form.email, phone: form.company || null, message: form.message,
+    });
+    setLoading(false);
+    if (error) { console.error(error); return; }
+    setOk(true);
   };
 
   return (
