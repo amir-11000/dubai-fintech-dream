@@ -41,7 +41,15 @@ export default function AuthPage() {
     }
     const { error } = await supabase.auth.signInWithOtp(opts);
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      const code = (error as any).code || "";
+      if (code === "phone_provider_disabled" || /phone provider/i.test(error.message)) {
+        toast.error("SMS provider is not configured yet.");
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
     setE164(phone);
     toast.success("OTP sent to your phone");
     setStep("otp");
