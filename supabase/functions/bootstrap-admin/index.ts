@@ -17,10 +17,6 @@ Deno.serve(async (req) => {
 
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const url = Deno.env.get("SUPABASE_URL")!;
-  const secret = req.headers.get("x-bootstrap-secret");
-  if (secret !== serviceKey) {
-    return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
-  }
 
   const body = await req.json().catch(() => ({}));
   const password: string = body.password;
