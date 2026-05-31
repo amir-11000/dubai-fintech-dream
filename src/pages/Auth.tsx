@@ -1,8 +1,8 @@
 import { useState, FormEvent, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
+import { supabase } from "../integrations/supabase/client";
+import { useAuth } from "../lib/auth";
 import { toast } from "sonner";
 import { ArrowRight, Phone, ShieldCheck } from "lucide-react";
 
