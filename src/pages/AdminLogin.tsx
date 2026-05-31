@@ -13,7 +13,7 @@ export default function AdminLogin() {
   const { user, isAdmin, loading } = useAuth();
   const [mode, setMode] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
-  const [country, setCountry] = useState<Country>(COUNTRIES.find(c => c.iso === "AE") || COUNTRIES[0]);
+  const [country, setCountry] = useState<Country>(COUNTRIES.find(c => c.code === "AE") || COUNTRIES[0]);
   const [localPhone, setLocalPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
