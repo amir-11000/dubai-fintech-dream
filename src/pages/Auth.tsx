@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import { supabase } from "../integrations/supabase/client";
 import { useAuth } from "../lib/auth";
 import { toast } from "sonner";
-import { ArrowRight, Phone, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
+import CountrySelect from "../components/CountrySelect";
+import { DEFAULT_COUNTRY, Country, toE164, validatePhone } from "../lib/countries";
 
 type Mode = "signin" | "signup";
 type Step = "details" | "otp";
@@ -14,11 +16,13 @@ export default function AuthPage() {
   const { session, loading } = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
   const [step, setStep] = useState<Step>("details");
-  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState<Country>(DEFAULT_COUNTRY);
+  const [localPhone, setLocalPhone] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [busy, setBusy] = useState(false);
+  const [e164, setE164] = useState("");
 
   useEffect(() => {
     if (!loading && session) nav("/", { replace: true });
@@ -26,10 +30,10 @@ export default function AuthPage() {
 
   const sendOtp = async (e: FormEvent) => {
     e.preventDefault();
-    if (!phone.startsWith("+")) {
-      toast.error("Phone must be in E.164 format, e.g. +971501234567");
-      return;
-    }
+    const err = validatePhone(country, localPhone);
+    if (err) { toast.error(err); return; }
+    const phone = toE164(country, localPhone);
+
     setBusy(true);
     const opts: any = { phone };
     if (mode === "signup") {
@@ -38,6 +42,7 @@ export default function AuthPage() {
     const { error } = await supabase.auth.signInWithOtp(opts);
     setBusy(false);
     if (error) { toast.error(error.message); return; }
+    setE164(phone);
     toast.success("OTP sent to your phone");
     setStep("otp");
   };
@@ -45,14 +50,13 @@ export default function AuthPage() {
   const verifyOtp = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.verifyOtp({ phone, token: otp, type: "sms" });
+    const { error } = await supabase.auth.verifyOtp({ phone: e164, token: otp, type: "sms" });
     if (error) { setBusy(false); toast.error(error.message); return; }
-    // update last_login + ensure profile has email/name if it's missing
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       await supabase.from("profiles").update({
         last_login: new Date().toISOString(),
-        ...(mode === "signup" ? { full_name: fullName, email, phone } : {}),
+        ...(mode === "signup" ? { full_name: fullName, email, phone: e164 } : { phone: e164 }),
       }).eq("user_id", user.id);
     }
     setBusy(false);
@@ -74,7 +78,9 @@ export default function AuthPage() {
               {mode === "signin" ? "Welcome back" : "Create your account"}
             </h1>
             <p className="mt-3 text-sm text-silver/70">
-              {step === "details" ? "Sign in with your phone number — we'll text you a one-time code." : `Enter the 6-digit code sent to ${phone}`}
+              {step === "details"
+                ? "Sign in with your phone number — we'll text you a one-time code."
+                : `Enter the 6-digit code sent to ${e164}`}
             </p>
           </div>
 
@@ -87,14 +93,42 @@ export default function AuthPage() {
                     <Field label="Email" type="email" value={email} onChange={setEmail} required placeholder="you@example.com" />
                   </>
                 )}
-                <Field label="Phone (with country code)" type="tel" value={phone} onChange={setPhone} required placeholder="+971501234567" icon={<Phone className="h-4 w-4 text-silver/50" />} />
+
+                <label className="block">
+                  <span className="mb-1.5 block text-[11px] uppercase tracking-widest text-silver/60">
+                    Phone number
+                  </span>
+                  <div className="flex overflow-hidden rounded-xl bg-white/[0.03] hairline focus-within:bg-white/[0.06] focus-within:ring-2 focus-within:ring-glow/40">
+                    <CountrySelect value={country} onChange={setCountry} />
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      required
+                      value={localPhone}
+                      placeholder="55 218 8004"
+                      onChange={(e) => setLocalPhone(e.target.value.replace(/[^\d\s-]/g, ""))}
+                      className="flex-1 bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-silver/30"
+                    />
+                  </div>
+                  <span className="mt-1.5 block text-[10px] text-silver/40">
+                    {country.flag} {country.name} · saved as{" "}
+                    <span className="text-silver/70 tabular-nums">{toE164(country, localPhone || "0")}</span>
+                  </span>
+                </label>
+
                 <button type="submit" disabled={busy} className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90 disabled:opacity-60">
                   {busy ? <Spinner /> : <>Send code <ArrowRight className="h-4 w-4" /></>}
                 </button>
               </form>
             ) : (
               <form onSubmit={verifyOtp} className="space-y-4">
-                <Field label="Verification code" value={otp} onChange={(v) => setOtp(v.replace(/\D/g, "").slice(0, 6))} required placeholder="123456" />
+                <Field
+                  label="Verification code"
+                  value={otp}
+                  onChange={(v) => setOtp(v.replace(/\D/g, "").slice(0, 6))}
+                  required
+                  placeholder="123456"
+                />
                 <button type="submit" disabled={busy || otp.length < 6} className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90 disabled:opacity-60">
                   {busy ? <Spinner /> : "Verify & continue"}
                 </button>
@@ -107,9 +141,17 @@ export default function AuthPage() {
             {step === "details" && (
               <div className="mt-6 text-center text-xs text-silver/60">
                 {mode === "signin" ? (
-                  <>New to SHOHO PAY? <button onClick={() => setMode("signup")} className="text-glow hover:underline">Create account</button></>
+                  <>New to SHOHO PAY?{" "}
+                    <button onClick={() => setMode("signup")} className="text-glow hover:underline">
+                      Create account
+                    </button>
+                  </>
                 ) : (
-                  <>Already have an account? <button onClick={() => setMode("signin")} className="text-glow hover:underline">Sign in</button></>
+                  <>Already have an account?{" "}
+                    <button onClick={() => setMode("signin")} className="text-glow hover:underline">
+                      Sign in
+                    </button>
+                  </>
                 )}
               </div>
             )}
@@ -124,19 +166,16 @@ export default function AuthPage() {
   );
 }
 
-const Field = ({ label, value, onChange, type = "text", required, placeholder, icon }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string; icon?: React.ReactNode;
+const Field = ({ label, value, onChange, type = "text", required, placeholder }: {
+  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string;
 }) => (
   <label className="block">
     <span className="mb-1.5 block text-[11px] uppercase tracking-widest text-silver/60">{label}</span>
-    <div className="relative">
-      {icon && <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>}
-      <input
-        type={type} required={required} value={value} placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded-xl bg-white/[0.03] py-3 text-sm text-white outline-none placeholder:text-silver/30 hairline focus:bg-white/[0.06] focus:ring-2 focus:ring-glow/40 ${icon ? "pl-10 pr-4" : "px-4"}`}
-      />
-    </div>
+    <input
+      type={type} required={required} value={value} placeholder={placeholder}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full rounded-xl bg-white/[0.03] px-4 py-3 text-sm text-white outline-none placeholder:text-silver/30 hairline focus:bg-white/[0.06] focus:ring-2 focus:ring-glow/40"
+    />
   </label>
 );
 
