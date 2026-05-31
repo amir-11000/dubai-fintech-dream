@@ -1070,6 +1070,12 @@ const Contact = () => {
     e.preventDefault();
     setLoading(true);
     const { supabase } = await import("./integrations/supabase/client");
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setLoading(false);
+      window.location.href = "/auth";
+      return;
+    }
     const { error } = await supabase.from("contact_messages").insert({
       name: form.name, email: form.email, phone: form.company || null, message: form.message,
     });
