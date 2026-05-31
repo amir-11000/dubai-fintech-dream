@@ -52,7 +52,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) { nav("/auth", { replace: true }); return; }
+    if (!user) { nav("/admin/login", { replace: true }); return; }
     if (!isAdmin) { nav("/", { replace: true }); toast.error("Admin access required"); return; }
     refresh();
   }, [user, isAdmin, loading]);
