@@ -2,84 +2,126 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
+:root {
+  color-scheme: dark;
+  --bg-primary: #0A0A0B;
+  --bg-secondary: #111114;
+  --bg-tertiary: #1A1A1F;
+  --accent-blue: #2D7FFF;
+  --accent-blue-glow: rgba(45,127,255,0.20);
+  --accent-gold: #C9A84C;
+  --accent-gold-glow: rgba(201,168,76,0.18);
+  --text-primary: #F5F5F7;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #52525B;
+  --glass-bg: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-blur: blur(24px);
+}
 
 html, body, #root { height: 100%; }
 html { scroll-behavior: smooth; }
+
 body {
-  @apply bg-ink text-silver font-display antialiased;
+  @apply bg-ink text-snow font-body antialiased;
   background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(90,169,255,0.10), transparent 60%),
-    radial-gradient(900px 500px at 90% 20%, rgba(214,181,106,0.06), transparent 60%),
-    #070809;
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(45,127,255,0.10), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 20%, rgba(201,168,76,0.05), transparent 60%),
+    #0A0A0B;
+  font-feature-settings: "ss01", "cv11";
 }
 
-::selection { background: rgba(90,169,255,0.35); color: white; }
+::selection { background: rgba(45,127,255,0.35); color: white; }
 
+/* ----- Glass ----- */
 .glass {
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-  border: 1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
-
 .glass-strong {
   background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
   border: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(28px) saturate(160%);
 }
+.glass-card {
+  background: var(--gradient-card, linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01)));
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 24px;
+}
+.hairline { border: 1px solid rgba(255,255,255,0.08); }
 
+/* ----- Typography ----- */
+.font-display { font-family: "Space Grotesk", "Inter", system-ui, sans-serif; letter-spacing: -0.02em; }
 .text-gradient-silver {
-  background: linear-gradient(180deg, #ffffff 0%, #aab2bd 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #A1A1AA 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .text-gradient-gold {
-  background: linear-gradient(135deg,#f4e4b3,#d6b56a 50%,#8a6a2e);
+  background: linear-gradient(135deg,#F5E09A,#C9A84C 50%,#8a6a2e);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .text-gradient-blue {
-  background: linear-gradient(135deg,#cfe1ff,#5aa9ff 60%,#1f63c6);
+  background: linear-gradient(135deg,#CFE1FF,#2D7FFF 60%,#1f63c6);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.hairline { border: 1px solid rgba(255,255,255,0.08); }
+/* ----- Glow utilities ----- */
+.glow-blue { box-shadow: 0 0 60px -10px rgba(45,127,255,0.55); }
+.glow-gold { box-shadow: 0 0 60px -10px rgba(201,168,76,0.45); }
 
-.glow-blue { box-shadow: 0 0 60px -10px rgba(90,169,255,0.45); }
-.glow-gold { box-shadow: 0 0 60px -10px rgba(214,181,106,0.4); }
-
+/* ----- Grid & noise ----- */
 .grid-lines {
   background-image:
     linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
   background-size: 56px 56px;
 }
-
-@keyframes floaty {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-.floaty { animation: floaty 6s ease-in-out infinite; }
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 .shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
   background-size: 200% 100%;
   animation: shimmer 3s linear infinite;
 }
 
-.noise::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
-  opacity: 0.04; mix-blend-mode: overlay;
+/* ----- Focus ----- */
+:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
+/* ----- Reduced motion ----- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ----- Scrollbar (subtle) ----- */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-.bg-gold-grad { background: linear-gradient(135deg, #f4e4b3 0%, #d6b56a 45%, #8a6a2e 100%); }
+/* ----- Titanium card sheen ----- */
+.titanium {
+  background:
+    linear-gradient(135deg, #1a1a1f 0%, #2a2a30 35%, #15151a 70%, #2a2a30 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 30px 80px -20px rgba(0,0,0,0.8),
+    0 0 60px -10px rgba(45,127,255,0.35);
+}
+
+/* ----- Particle dots ----- */
+.dots-bg {
+  background-image: radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
