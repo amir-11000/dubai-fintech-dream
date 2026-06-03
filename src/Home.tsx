@@ -1,1240 +1,901 @@
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
-import { useEffect, useRef, useState, FormEvent } from "react";
+import { useEffect, useRef, useState, FormEvent, ReactNode } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import {
-  ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  Zap,
-  Globe2,
-  Bot,
-  Coins,
-  Bitcoin,
-  Smartphone,
-  ArrowUpRight,
-  Play,
-  CircleDollarSign,
-  TrendingUp,
-  Send,
-  CheckCircle2,
-  X,
-  Mail,
-  MapPin,
-  Phone,
-  Wallet as WalletIcon,
-  Users,
-  Map,
-  Rocket,
+  ArrowRight, ArrowUpRight, ShieldCheck, Zap, Globe2, Bot, Coins, Bitcoin,
+  Sparkles, Send, CircleDollarSign, TrendingUp, CheckCircle2, Plus, Minus,
+  Star, Lock, Fingerprint, Cpu, Wallet, Smartphone, Twitter, Linkedin, Instagram,
+  Menu, X,
 } from "lucide-react";
-import skyline from "./assets/dubai-skyline.jpg";
-import goldBars from "./assets/gold-bars.jpg";
-import iphonesDuo from "./assets/iphones-duo.png";
+import { track } from "./lib/analytics";
 
-/* ------------------------------- Helpers ------------------------------- */
-
-const scrollToId = (id: string) => {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-};
-
-/* ------------------------------- Primitives ------------------------------- */
-
-const Container: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ children, className = "" }) => (
+/* =========================================================
+   PRIMITIVES
+========================================================= */
+const Container = ({ children, className = "" }: { children: ReactNode; className?: string }) => (
   <div className={`mx-auto w-full max-w-7xl px-6 md:px-10 ${className}`}>{children}</div>
 );
 
-const Eyebrow: React.FC<React.PropsWithChildren<{ tone?: "blue" | "gold" }>> = ({ children, tone = "blue" }) => (
-  <span className={`inline-flex items-center gap-2 rounded-full hairline px-3 py-1 text-[11px] uppercase tracking-[0.18em] ${tone === "gold" ? "text-gold" : "text-glow"}`}>
+const Eyebrow = ({ children, tone = "blue" }: { children: ReactNode; tone?: "blue" | "gold" }) => (
+  <span className={`inline-flex items-center gap-2 rounded-full hairline px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] ${tone === "gold" ? "text-gold" : "text-glow"}`}>
     <span className={`h-1.5 w-1.5 rounded-full ${tone === "gold" ? "bg-gold" : "bg-glow"} shadow-[0_0_10px_currentColor]`} />
     {children}
   </span>
 );
 
-const SectionHeader: React.FC<{ eyebrow: string; title: React.ReactNode; sub?: string; tone?: "blue" | "gold" }> = ({ eyebrow, title, sub, tone = "blue" }) => (
+const SectionHead = ({ eyebrow, title, sub, tone }: { eyebrow: string; title: ReactNode; sub?: string; tone?: "blue" | "gold" }) => (
   <div className="mx-auto max-w-3xl text-center">
     <Eyebrow tone={tone}>{eyebrow}</Eyebrow>
-    <h2 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-gradient-silver md:text-6xl">{title}</h2>
-    {sub && <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-silver/70 md:text-lg">{sub}</p>}
+    <h2 className="font-display mt-5 text-balance text-4xl font-semibold leading-[1.05] text-gradient-silver md:text-6xl">{title}</h2>
+    {sub && <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-silver/80 md:text-lg">{sub}</p>}
   </div>
 );
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: i * 0.08 } }),
-};
-
-/* --------------------------------- Modal -------------------------------- */
-
-const Modal: React.FC<React.PropsWithChildren<{ open: boolean; onClose: () => void; size?: "md" | "lg" }>> = ({ open, onClose, size = "md", children }) => (
-  <AnimatePresence>
-    {open && (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] grid place-items-center bg-ink/80 backdrop-blur-md px-4">
-        <motion.div onClick={onClose} className="absolute inset-0" />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 20 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className={`relative w-full ${size === "lg" ? "max-w-4xl" : "max-w-md"} rounded-3xl glass-strong p-6 md:p-8`}
-        >
-          <button onClick={onClose} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20">
-            <X className="h-4 w-4" />
-          </button>
-          {children}
-        </motion.div>
-      </motion.div>
-    )}
-  </AnimatePresence>
+const Reveal = ({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-80px" }}
+    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay }}
+    className={className}
+  >{children}</motion.div>
 );
 
-/* -------------------------- Modal context (light) ----------------------- */
-
-type ModalState = "none" | "updates" | "demo";
-const useModal = () => {
-  const [m, setM] = useState<ModalState>("none");
-  return { m, open: (x: ModalState) => setM(x), close: () => setM("none") };
-};
-
-/* --------------------------------- Nav ----------------------------------- */
+/* =========================================================
+   NAV
+========================================================= */
+const navLinks = [
+  { to: "/features", label: "Features" },
+  { to: "/pricing", label: "Pricing" },
+  { to: "/security", label: "Security" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
+];
 
 export const Nav = () => {
   const [scrolled, setScrolled] = useState(false);
-  const { m, open, close } = useModal();
+  const [open, setOpen] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const on = () => setScrolled(window.scrollY > 12);
+    on(); window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
   }, []);
-
-  const navItems: { l: string; id: string }[] = [
-    { l: "Overview", id: "overview" },
-    { l: "Wallet", id: "wallet" },
-    { l: "Exchange", id: "exchange" },
-    { l: "Gold", id: "gold" },
-    { l: "Crypto", id: "crypto" },
-    { l: "AI Finance", id: "ai" },
-    { l: "Roadmap", id: "roadmap" },
-  ];
-
   return (
-    <>
-      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scrolled ? "py-3" : "py-5"}`}>
-        <Container>
-          <div className={`flex items-center justify-between rounded-full px-4 py-2.5 transition-all duration-500 ${scrolled ? "glass-strong" : ""}`}>
-            <button onClick={() => scrollToId("top")} className="flex items-center gap-2.5">
-              <div className="relative h-7 w-7">
-                <div className="absolute inset-0 rounded-md bg-gradient-to-br from-glow to-white/20 blur-md opacity-70" />
-                <div className="relative grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-white/20 to-white/5 hairline">
-                  <span className="text-[10px] font-bold text-white">SH</span>
-                </div>
-              </div>
-              <span className="text-sm font-semibold tracking-[0.18em] text-white">SHOHO PAY</span>
-            </button>
-            <nav className="hidden items-center gap-7 text-sm text-silver/70 lg:flex">
-              {navItems.map((l) => (
-                <button key={l.l} onClick={() => scrollToId(l.id)} className="hover:text-white transition">
-                  {l.l}
-                </button>
-              ))}
-            </nav>
-            <div className="flex items-center gap-2">
-              <a href="/auth" className="hidden rounded-full px-4 py-2 text-sm text-silver/80 hover:text-white md:inline-block">
-                Sign in
-              </a>
-              <button onClick={() => open("updates")} className="hidden rounded-full px-4 py-2 text-sm text-silver/80 hover:text-white md:inline-block">
-                Get Updates
-              </button>
-              <button onClick={() => scrollToId("overview")} className="group inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-ink transition hover:bg-white/90">
-                Explore SHOHO PAY
-                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-              </button>
-            </div>
+    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "bg-ink/70 backdrop-blur-xl border-b border-white/[0.06]" : "bg-transparent"}`}>
+      <Container className="flex h-16 items-center justify-between md:h-20">
+        <Link to="/" className="flex items-center gap-2.5" aria-label="Shoho Pay home">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-glow to-glow/40 glow-blue">
+            <Sparkles className="h-4 w-4 text-white" />
           </div>
-        </Container>
-      </header>
+          <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
+        </Link>
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+          {navLinks.map((l) => (
+            <NavLink
+              key={l.to}
+              to={l.to}
+              className={({ isActive }) =>
+                `rounded-full px-4 py-2 text-sm transition ${isActive ? "bg-white/10 text-snow" : "text-silver hover:text-snow"}`
+              }
+            >
+              {l.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="hidden items-center gap-2 md:flex">
+          <Link to="/auth" className="rounded-full px-4 py-2 text-sm text-silver hover:text-snow">Sign in</Link>
+          <Link to="/waitlist" onClick={() => track("cta_click", { button_label: "nav_waitlist" })} className="group inline-flex items-center gap-1.5 rounded-full bg-glow px-4 py-2 text-sm font-medium text-white shadow-[0_8px_30px_-8px_rgba(45,127,255,0.6)] transition hover:bg-glow/90">
+            Join Waitlist <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+        <button onClick={() => setOpen(true)} aria-label="Open menu" className="grid h-10 w-10 place-items-center rounded-full glass md:hidden">
+          <Menu className="h-4 w-4 text-snow" />
+        </button>
+      </Container>
 
-      <UpdatesModal open={m === "updates"} onClose={close} />
-    </>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-ink/95 backdrop-blur-2xl md:hidden">
+            <Container className="flex h-16 items-center justify-between">
+              <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
+              <button onClick={() => setOpen(false)} aria-label="Close menu" className="grid h-10 w-10 place-items-center rounded-full glass">
+                <X className="h-4 w-4 text-snow" />
+              </button>
+            </Container>
+            <Container className="mt-8 flex flex-col gap-1">
+              {navLinks.map((l) => (
+                <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className="rounded-2xl px-5 py-4 text-xl text-snow hover:bg-white/5">
+                  {l.label}
+                </NavLink>
+              ))}
+              <div className="mt-6 flex flex-col gap-3">
+                <Link to="/auth" onClick={() => setOpen(false)} className="rounded-full glass px-5 py-3.5 text-center text-sm text-snow">Sign in</Link>
+                <Link to="/waitlist" onClick={() => setOpen(false)} className="rounded-full bg-glow px-5 py-3.5 text-center text-sm font-medium text-white">Join Waitlist</Link>
+              </div>
+            </Container>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 };
 
-/* --------------------------- Updates Modal ------------------------------ */
-
-const UpdatesModal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [ok, setOk] = useState(false);
-
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setOk(true);
-    }, 800);
-  };
-
+/* =========================================================
+   HERO
+========================================================= */
+const HeroParticles = () => {
+  const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    if (!open) {
-      setTimeout(() => { setOk(false); setName(""); setEmail(""); setPhone(""); }, 200);
-    }
-  }, [open]);
-
-  return (
-    <Modal open={open} onClose={onClose}>
-      <Eyebrow>Stay informed</Eyebrow>
-      <h3 className="mt-4 text-2xl font-semibold tracking-tight text-gradient-silver md:text-3xl">Get SHOHO PAY updates.</h3>
-      <p className="mt-2 text-sm text-silver/70">Be first to receive launch announcements, product updates and ecosystem milestones.</p>
-
-      {ok ? (
-        <div className="mt-6 rounded-2xl border border-glow/30 bg-glow/10 p-5 text-center">
-          <CheckCircle2 className="mx-auto h-8 w-8 text-glow" />
-          <div className="mt-3 text-base font-medium text-white">Thank you.</div>
-          <div className="mt-1 text-sm text-silver/70">You'll receive SHOHO PAY updates and launch announcements.</div>
-        </div>
-      ) : (
-        <form onSubmit={submit} className="mt-6 space-y-3">
-          <FieldInput label="Name" value={name} onChange={setName} required />
-          <FieldInput label="Email" type="email" value={email} onChange={setEmail} required />
-          <FieldInput label="Phone Number (optional)" type="tel" value={phone} onChange={setPhone} placeholder="+971 50 000 0000" />
-          <button type="submit" disabled={loading} className="group mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90 disabled:opacity-60">
-            {loading && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink/30 border-t-ink" />}
-            Subscribe
-          </button>
-        </form>
-      )}
-    </Modal>
-  );
+    const cvs = ref.current; if (!cvs) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = cvs.getContext("2d")!;
+    let w = 0, h = 0, raf = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const mouse = { x: -9999, y: -9999 };
+    const N = window.innerWidth < 768 ? 50 : 90;
+    type P = { x: number; y: number; vx: number; vy: number };
+    let pts: P[] = [];
+    const resize = () => {
+      w = cvs.clientWidth; h = cvs.clientHeight;
+      cvs.width = w * dpr; cvs.height = h * dpr; ctx.scale(dpr, dpr);
+      pts = Array.from({ length: N }, () => ({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25 }));
+    };
+    resize();
+    const onMove = (e: PointerEvent) => { const r = cvs.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; };
+    const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+    cvs.addEventListener("pointermove", onMove); cvs.addEventListener("pointerleave", onLeave);
+    window.addEventListener("resize", resize);
+    const tick = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of pts) {
+        const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+        if (d2 < 10000) { const f = (1 - d2 / 10000) * 0.6; p.vx += (dx / Math.sqrt(d2 || 1)) * f; p.vy += (dy / Math.sqrt(d2 || 1)) * f; }
+        p.vx *= 0.96; p.vy *= 0.96;
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+      }
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const a = pts[i], b = pts[j], dx = a.x - b.x, dy = a.y - b.y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 110) { ctx.strokeStyle = `rgba(45,127,255,${(1 - d / 110) * 0.18})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+        }
+      }
+      ctx.fillStyle = "rgba(45,127,255,0.55)";
+      for (const p of pts) { ctx.beginPath(); ctx.arc(p.x, p.y, 1.4, 0, Math.PI * 2); ctx.fill(); }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); cvs.removeEventListener("pointermove", onMove); cvs.removeEventListener("pointerleave", onLeave); };
+  }, []);
+  return <canvas ref={ref} aria-hidden className="absolute inset-0 h-full w-full" />;
 };
 
-const FieldInput: React.FC<{ label: string; type?: string; value: string; onChange: (v: string) => void; required?: boolean; placeholder?: string }> = ({ label, type = "text", value, onChange, required, placeholder }) => (
-  <label className="block">
-    <span className="mb-1.5 block text-[11px] uppercase tracking-widest text-silver/60">{label}</span>
-    <input
-      type={type}
-      required={required}
-      value={value}
-      placeholder={placeholder}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-xl bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition placeholder:text-silver/30 hairline focus:bg-white/[0.06] focus:ring-2 focus:ring-glow/40"
-    />
-  </label>
-);
-
-/* --------------------------- Demo Modal --------------------------------- */
-
-const DemoModal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => (
-  <Modal open={open} onClose={onClose} size="lg">
-    <Eyebrow>Cinematic preview</Eyebrow>
-    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-gradient-silver md:text-3xl">SHOHO PAY Product Experience <span className="text-gradient-blue">Coming Soon</span></h3>
-    <p className="mt-2 text-sm text-silver/70">A glimpse into the future financial lifestyle ecosystem being built from Dubai.</p>
-
-    <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#0c1220] via-[#0a0d18] to-black hairline">
-      <img src={iphonesDuo} alt="" className="absolute inset-0 m-auto h-[78%] object-contain opacity-60" />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent" />
-      <div className="absolute inset-0 grid place-items-center">
-        <div className="group grid h-20 w-20 place-items-center rounded-full bg-white/95 text-ink shadow-2xl">
-          <Play className="h-7 w-7 translate-x-0.5 fill-ink" />
-        </div>
-      </div>
-      <div className="absolute bottom-4 left-4 rounded-full glass-strong px-3 py-1.5 text-[10px] uppercase tracking-widest text-white">Teaser · Coming soon</div>
-    </div>
-
-    <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-      {[
-        { icon: Zap, t: "Instant settlement" },
-        { icon: Coins, t: "Digital gold" },
-        { icon: Bot, t: "AI finance" },
-        { icon: Globe2, t: "Borderless FX" },
-      ].map((f) => (
-        <div key={f.t} className="flex items-center gap-2 rounded-xl glass px-3 py-3 text-sm text-white">
-          <f.icon className="h-4 w-4 text-glow" /> {f.t}
-        </div>
-      ))}
-    </div>
-  </Modal>
-);
-
-/* --------------------------------- Hero ---------------------------------- */
-
-const Hero: React.FC<{ onWatchDemo: () => void }> = ({ onWatchDemo }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
-  return (
-    <section id="top" ref={ref} className="relative isolate overflow-hidden pt-36 md:pt-44">
-      <motion.div style={{ y, opacity }} className="pointer-events-none absolute inset-0 -z-10">
-        <img src={skyline} alt="" className="h-full w-full object-cover opacity-[0.35]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/70 to-ink" />
-        <div className="absolute inset-0 grid-lines opacity-[0.35]" />
-      </motion.div>
-
-      <Container className="relative">
-        <motion.div initial="hidden" animate="show" variants={fadeUp} className="mx-auto max-w-4xl text-center">
-          <Eyebrow>Built in Dubai · For the world</Eyebrow>
-          <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl lg:text-[88px]">
-            <span className="text-gradient-silver">The Future Financial</span>
-            <br />
-            <span className="text-gradient-silver">Lifestyle </span>
-            <span className="text-gradient-blue">Ecosystem.</span>
-          </h1>
-          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-silver/70">
-            One intelligent platform — envisioning a unified home for your digital wallet, instant exchange, crypto, digital gold, AI finance and social payments.
-          </p>
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <button onClick={() => scrollToId("overview")} className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90">
-              Explore SHOHO PAY
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-            </button>
-            <button onClick={onWatchDemo} className="group inline-flex items-center gap-2 rounded-full glass px-6 py-3.5 text-sm font-medium text-white transition hover:bg-white/10">
-              <Play className="h-4 w-4 fill-white" />
-              Watch Demo
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Floating device + concept cards */}
-        <div className="relative mx-auto mt-16 h-[560px] w-full max-w-5xl md:mt-24 md:h-[640px]">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-1/2 top-0 -translate-x-1/2"
-          >
-            <div className="relative floaty">
-              <div className="absolute -inset-16 -z-10 rounded-full bg-glow/20 blur-3xl" />
-              <PhoneFrame className="h-[560px] w-[280px] md:h-[640px] md:w-[320px]">
-                <WalletConceptScreen />
-              </PhoneFrame>
-            </div>
-          </motion.div>
-
-          <FloatingCard className="left-2 top-20 md:left-0 md:top-32" delay={0.6} direction="left">
-            <div className="flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-glow/20 text-glow">
-                <Zap className="h-4 w-4" />
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-silver/60">Instant transfer</div>
-                <div className="text-sm font-medium text-white">Sub-second settlement</div>
-              </div>
-            </div>
-          </FloatingCard>
-
-          <FloatingCard className="right-2 top-40 md:right-0 md:top-48" delay={0.8} direction="right">
-            <div className="flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-gold/20 text-gold">
-                <Coins className="h-4 w-4" />
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-silver/60">Digital gold</div>
-                <div className="text-sm font-medium text-white">Gram-level ownership</div>
-              </div>
-            </div>
-          </FloatingCard>
-
-          <FloatingCard className="bottom-6 left-6 md:bottom-12 md:left-10" delay={1} direction="left">
-            <div className="flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-white">
-                <Globe2 className="h-4 w-4" />
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-silver/60">Borderless FX</div>
-                <div className="text-sm font-medium text-white">Interbank concept</div>
-              </div>
-            </div>
-          </FloatingCard>
-
-          <FloatingCard className="bottom-10 right-4 md:bottom-20 md:right-10" delay={1.2} direction="right">
-            <div className="flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-white">
-                <Bot className="h-4 w-4" />
-              </div>
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-silver/60">AI assistant</div>
-                <div className="text-sm font-medium text-white">Adaptive financial intelligence</div>
-              </div>
-            </div>
-          </FloatingCard>
-        </div>
-      </Container>
-
-      <div className="relative mt-12 border-y border-white/5 bg-white/[0.015] py-6">
-        <div className="flex animate-[marquee_40s_linear_infinite] gap-16 whitespace-nowrap text-sm uppercase tracking-[0.25em] text-silver/40">
-          {Array.from({ length: 2 }).map((_, k) => (
-            <div key={k} className="flex gap-16">
-              {["Designed in Dubai", "Bank-grade security vision", "Regulated custody concept", "Borderless ecosystem", "AI-native architecture", "Investor-grade design", "Coming soon"].map((t) => (
-                <span key={t} className="flex items-center gap-3">
-                  <span className="h-1 w-1 rounded-full bg-silver/40" />
-                  {t}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-      <style>{`@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
-    </section>
-  );
-};
-
-const PhoneFrame: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ children, className = "" }) => (
-  <div className={`relative rounded-[44px] border border-white/15 bg-gradient-to-b from-white/20 to-white/5 p-[6px] shadow-[0_60px_120px_-30px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.04)] ${className}`}>
-    <div className="relative h-full w-full overflow-hidden rounded-[38px] bg-gradient-to-b from-[#0c0f14] to-[#06080b]">
-      <div className="absolute left-1/2 top-2 z-10 h-5 w-24 -translate-x-1/2 rounded-full bg-black" />
-      {children}
-    </div>
-  </div>
-);
-
-/* Conceptual wallet screen — abstract, no fake numbers */
-const WalletConceptScreen = () => (
-  <div className="relative flex h-full w-full flex-col p-5 pt-9">
-    <div className="flex items-center justify-between">
-      <div className="text-[10px] uppercase tracking-widest text-silver/50">Wallet · Concept</div>
-      <div className="flex items-center gap-1 text-[10px] text-silver/50">
-        <ShieldCheck className="h-3 w-3" /> Secured
-      </div>
-    </div>
-    <div className="mt-6">
-      <div className="text-[10px] uppercase tracking-wider text-silver/50">Unified balance</div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <div className="h-8 w-44 rounded-md bg-gradient-to-r from-white/20 to-white/5" />
-      </div>
-      <div className="mt-2 h-2.5 w-28 rounded-md bg-glow/40" />
-    </div>
-    <svg viewBox="0 0 300 100" className="mt-5 h-16 w-full">
-      <defs>
-        <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#5aa9ff" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#5aa9ff" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d="M0,70 C30,60 50,80 80,55 C110,30 140,65 170,40 C200,15 230,55 260,30 C280,15 300,30 300,30 L300,100 L0,100 Z" fill="url(#g1)" />
-      <path d="M0,70 C30,60 50,80 80,55 C110,30 140,65 170,40 C200,15 230,55 260,30 C280,15 300,30 300,30" fill="none" stroke="#5aa9ff" strokeWidth="1.5" />
-    </svg>
-    <div className="mt-5 grid grid-cols-4 gap-2">
-      {["Send", "Top up", "Swap", "More"].map((t) => (
-        <div key={t} className="rounded-xl bg-white/5 px-2 py-2 text-center text-[10px] text-silver/80 hairline">{t}</div>
-      ))}
-    </div>
-    <div className="mt-5 space-y-2">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="flex items-center justify-between rounded-xl bg-white/[0.03] px-3 py-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded-full bg-white/10" />
-            <div className="space-y-1.5">
-              <div className="h-2 w-20 rounded bg-white/15" />
-              <div className="h-1.5 w-12 rounded bg-white/10" />
-            </div>
-          </div>
-          <div className="h-2 w-12 rounded bg-white/10" />
-        </div>
-      ))}
-    </div>
-    <div className="mt-auto pt-4 text-center text-[9px] uppercase tracking-widest text-silver/40">Interface concept · Preview</div>
-  </div>
-);
-
-const FloatingCard: React.FC<React.PropsWithChildren<{ className?: string; delay?: number; direction?: "left" | "right" }>> = ({ children, className = "", delay = 0, direction = "left" }) => (
-  <motion.div
-    initial={{ opacity: 0, x: direction === "left" ? -30 : 30, y: 10 }}
-    animate={{ opacity: 1, x: 0, y: 0 }}
-    transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
-    className={`absolute z-20 hidden rounded-2xl glass px-4 py-3 shadow-2xl sm:block ${className}`}
-  >
-    <div className="floaty">{children}</div>
-  </motion.div>
-);
-
-/* --------------------------- Product Overview --------------------------- */
-
-const overviewPillars = [
-  { icon: WalletIcon, t: "Digital Wallet", d: "A unified home for AED and global currencies." , id: "wallet" },
-  { icon: Globe2, t: "Instant Exchange", d: "Borderless conversion at real interbank concept rates.", id: "exchange" },
-  { icon: Coins, t: "Digital Gold", d: "Investment-grade gold, gram by gram. Vaulted concept." , id: "gold" },
-  { icon: Bitcoin, t: "Crypto Ecosystem", d: "Traditional finance meets leading digital assets." , id: "crypto" },
-  { icon: Bot, t: "AI Financial Assistant", d: "Adaptive intelligence across spend, save and invest." , id: "ai" },
-  { icon: Users, t: "Social Payments", d: "Pay anyone in your contacts. No IBANs. No friction." , id: "social" },
-];
-
-const Overview = () => (
-  <section id="overview" className="relative py-32">
-    <Container>
-      <SectionHeader
-        eyebrow="Product overview"
-        title={<>One ecosystem. <span className="text-gradient-blue">Six pillars.</span></>}
-        sub="SHOHO PAY is being designed as a single intelligent platform that brings every part of your financial life into one premium experience."
-      />
-      <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {overviewPillars.map((p, i) => (
-          <motion.button
-            key={p.t}
-            onClick={() => scrollToId(p.id)}
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-10%" }}
-            custom={i}
-            className="group relative overflow-hidden rounded-2xl glass p-6 text-left transition hover:bg-white/[0.06]"
-          >
-            <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 transition group-hover:opacity-100" />
-            <p.icon className="h-5 w-5 text-glow" />
-            <div className="mt-4 text-base font-medium text-white">{p.t}</div>
-            <div className="mt-1.5 text-sm text-silver/60">{p.d}</div>
-            <div className="mt-5 inline-flex items-center gap-1.5 text-xs text-glow opacity-0 transition group-hover:opacity-100">
-              Learn more <ArrowRight className="h-3 w-3" />
-            </div>
-          </motion.button>
-        ))}
-      </div>
-    </Container>
-  </section>
-);
-
-/* --------------------------- Modern finance row ------------------------- */
-
-const Principles = () => (
-  <section className="relative py-24">
-    <Container>
-      <SectionHeader
-        eyebrow="Engineering principles"
-        title={<>Built for trust, <span className="text-gradient-blue">speed and clarity.</span></>}
-        sub="The technical and design principles guiding the SHOHO PAY ecosystem from day one."
-      />
-      <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-        {[
-          { icon: Zap, t: "Instant settlement", d: "Inter-wallet transfers designed to settle in under a second." },
-          { icon: ShieldCheck, t: "Regulated custody", d: "Funds intended to be protected under UAE financial regulation." },
-          { icon: Sparkles, t: "AI-native", d: "Adaptive intelligence woven across spend, save and invest." },
-        ].map((f, i) => (
-          <motion.div key={f.t} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-15%" }} custom={i} className="rounded-2xl glass p-6">
-            <f.icon className="h-5 w-5 text-glow" />
-            <div className="mt-4 text-base font-medium text-white">{f.t}</div>
-            <div className="mt-1.5 text-sm text-silver/60">{f.d}</div>
-          </motion.div>
-        ))}
-      </div>
-    </Container>
-  </section>
-);
-
-/* ------------------------------- Wallet --------------------------------- */
-
-const WalletSection = () => (
-  <section id="wallet" className="relative py-32">
-    <Container>
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-        <div>
-          <Eyebrow>Digital Wallet Ecosystem</Eyebrow>
-          <h2 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
-            <span className="text-gradient-silver">One wallet.</span>
-            <br />
-            <span className="text-gradient-blue">Every currency. Every asset.</span>
-          </h2>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-silver/70">
-            A single, intelligent wallet designed to hold AED, global currencies, gold and digital assets — orchestrated in one premium interface.
-          </p>
-          <ul className="mt-7 space-y-3">
-            {["Unified multi-currency interface", "Native AED-first experience", "Designed for global residents and travelers"].map((t) => (
-              <li key={t} className="flex items-start gap-3 text-sm text-silver/80">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 text-glow" /> {t}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="relative">
-          <div className="absolute -inset-10 -z-10 rounded-full bg-glow/15 blur-3xl" />
-          <div className="mx-auto w-fit">
-            <PhoneFrame className="h-[560px] w-[280px] md:h-[600px] md:w-[300px]"><WalletConceptScreen /></PhoneFrame>
-          </div>
-        </div>
-      </div>
-    </Container>
-  </section>
-);
-
-/* ------------------------------ Exchange -------------------------------- */
-
-const ExchangeSection = () => (
-  <section id="exchange" className="relative py-32">
-    <Container>
-      <SectionHeader
-        eyebrow="Instant Exchange"
-        title={<>Convert currencies <span className="text-gradient-blue">instantly</span> inside your wallet.</>}
-        sub="Designed to deliver real interbank rates with zero hidden spreads — the way borderless finance was always meant to feel."
-      />
-
-      <div className="mt-16 grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="relative mx-auto w-full max-w-md">
-          <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-glow/10 blur-3xl" />
-          <div className="rounded-3xl glass-strong p-6">
-            <div className="flex items-center justify-between">
-              <div className="text-xs uppercase tracking-widest text-silver/50">Swap · Concept</div>
-              <div className="flex items-center gap-1 text-xs text-glow">
-                <span className="h-1.5 w-1.5 rounded-full bg-glow shadow-[0_0_10px_currentColor]" /> Preview
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-2xl bg-white/[0.03] p-4 hairline">
-              <div className="flex items-center justify-between text-xs text-silver/50">
-                <span>You send</span><span>Source currency</span>
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <div className="h-7 w-32 rounded-md bg-gradient-to-r from-white/20 to-white/5" />
-                <Chip>AED</Chip>
-              </div>
-            </div>
-
-            <div className="my-2 grid place-items-center">
-              <div className="grid h-9 w-9 place-items-center rounded-full glass">
-                <ArrowRight className="h-4 w-4 -rotate-90 text-white" />
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-white/[0.03] p-4 hairline">
-              <div className="flex items-center justify-between text-xs text-silver/50">
-                <span>You receive</span><span>Destination</span>
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <div className="h-7 w-32 rounded-md bg-gradient-to-r from-glow/60 to-glow/10" />
-                <Chip>USD</Chip>
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-2xl bg-white/[0.02] py-3 text-center text-xs uppercase tracking-widest text-silver/50 hairline">
-              Interface concept · Coming soon
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="space-y-3">
-          {["AED", "USD", "EUR", "GBP"].map((c, i) => (
-            <motion.div key={c} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.06 }} className="flex items-center justify-between rounded-2xl glass px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-full bg-white/5 text-[10px] font-medium text-white hairline">{c}</div>
-                <div>
-                  <div className="text-sm text-white">{c} pair</div>
-                  <div className="text-[11px] text-silver/50">Interbank concept · No spread</div>
-                </div>
-              </div>
-              <div className="h-2 w-16 rounded bg-white/10" />
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </Container>
-  </section>
-);
-
-const Chip: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white hairline">
-    <span className="h-1.5 w-1.5 rounded-full bg-glow" />
-    {children}
-  </div>
-);
-
-/* -------------------------------- Gold ---------------------------------- */
-
-const Gold = () => (
-  <section id="gold" className="relative py-32">
-    <Container>
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-          <Eyebrow tone="gold">Digital Gold Ownership</Eyebrow>
-          <h2 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
-            <span className="text-gradient-silver">Own real gold.</span>
-            <br />
-            <span className="text-gradient-gold">Gram by gram.</span>
-          </h2>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-silver/70">
-            SHOHO PAY is designing a digital gold experience where 24k investment-grade gold can be bought, held and redeemed — vaulted in regulated custody.
-          </p>
-          <ul className="mt-7 space-y-3">
-            {["Concept: start from 1 gram, no minimums.", "Concept: fully insured, vaulted custody.", "Concept: redeem physical bars or request delivery."].map((t) => (
-              <li key={t} className="flex items-start gap-3 text-sm text-silver/80">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 text-gold" /> {t}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#f4e4b3] via-[#d6b56a] to-[#8a6a2e] px-5 py-3 text-xs font-medium uppercase tracking-widest text-ink">
-            Coming soon
-          </div>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }} className="relative">
-          <div className="absolute -inset-10 -z-10 rounded-full bg-gold/15 blur-3xl" />
-          <div className="relative overflow-hidden rounded-3xl glass-strong">
-            <img src={goldBars} alt="Digital gold concept" loading="lazy" className="h-[520px] w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6">
-              <div className="rounded-2xl glass-strong p-4">
-                <div className="text-[11px] uppercase tracking-widest text-silver/60">Digital gold · Interface concept</div>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                  {["Buy", "Sell", "Redeem"].map((t) => (
-                    <div key={t} className="rounded-lg bg-white/5 py-2 text-xs text-white hairline">{t}</div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </Container>
-  </section>
-);
-
-/* -------------------------------- Crypto -------------------------------- */
-
-const Crypto = () => (
-  <section id="crypto" className="relative py-32">
-    <Container>
-      <SectionHeader
-        eyebrow="Crypto Ecosystem"
-        title={<>Traditional finance meets <span className="text-gradient-blue">digital assets.</span></>}
-        sub="A planned environment to trade, hold and earn across leading digital assets — elegantly integrated with the wallet."
-      />
-
-      <div className="mt-16 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="lg:col-span-2 rounded-3xl glass-strong p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-glow/15 text-glow"><Bitcoin className="h-5 w-5" /></div>
-              <div>
-                <div className="text-sm text-white">Digital asset · Concept</div>
-                <div className="text-[11px] text-silver/50">Interface preview · AED markets</div>
-              </div>
-            </div>
-            <div className="rounded-full glass px-3 py-1 text-[10px] uppercase tracking-widest text-silver/70">Preview</div>
-          </div>
-
-          <svg viewBox="0 0 600 220" className="mt-6 h-56 w-full">
-            <defs>
-              <linearGradient id="cg" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#5aa9ff" stopOpacity="0.45" />
-                <stop offset="100%" stopColor="#5aa9ff" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <line key={i} x1="0" x2="600" y1={40 + i * 35} y2={40 + i * 35} stroke="rgba(255,255,255,0.05)" />
-            ))}
-            <path d="M0,160 C40,150 80,170 120,140 C160,110 200,150 240,120 C280,90 320,130 360,90 C400,55 440,100 480,70 C520,45 560,80 600,55 L600,220 L0,220 Z" fill="url(#cg)" />
-            <path d="M0,160 C40,150 80,170 120,140 C160,110 200,150 240,120 C280,90 320,130 360,90 C400,55 440,100 480,70 C520,45 560,80 600,55" fill="none" stroke="#5aa9ff" strokeWidth="2" />
-          </svg>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {["1H", "1D", "1W", "1M", "1Y", "All"].map((t, i) => (
-              <div key={t} className={`rounded-full px-3 py-1.5 text-xs ${i === 2 ? "bg-white text-ink" : "glass text-silver/70"}`}>{t}</div>
-            ))}
-          </div>
-          <div className="mt-4 text-center text-[10px] uppercase tracking-widest text-silver/40">Abstract chart · Visual concept only</div>
-        </motion.div>
-
-        <div className="space-y-3">
-          {["BTC", "ETH", "SOL", "USDT"].map((sym, i) => (
-            <motion.div key={sym} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.06 }} className="flex items-center justify-between rounded-2xl glass px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-full bg-white/5 text-[10px] font-semibold text-white hairline">{sym}</div>
-                <div>
-                  <div className="text-sm text-white">{sym}</div>
-                  <div className="text-[11px] text-silver/50">Supported asset · Concept</div>
-                </div>
-              </div>
-              <div className="h-2 w-12 rounded bg-white/10" />
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </Container>
-  </section>
-);
-
-/* ------------------------------ AI Section ------------------------------ */
-
-const AISection = () => {
-  const messages = [
-    { role: "user", text: "Help me save for a trip in 3 months." },
-    { role: "ai", text: "I'll build a plan around your real cash flow and suggest weekly milestones — all inside your wallet." },
-    { role: "user", text: "Can I invest the rest safely?" },
-    { role: "ai", text: "Yes — I'll propose a balanced allocation across low-risk yield and digital gold, tuned to your profile." },
-  ];
-  return (
-    <section id="ai" className="relative py-32">
-      <Container>
-        <SectionHeader
-          eyebrow="AI Financial Assistant"
-          title={<>Your money, <span className="text-gradient-blue">thinking ahead.</span></>}
-          sub="An envisioned private financial intelligence that plans, budgets and invests with you — in plain language."
-        />
-
-        <div className="mt-16 grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="rounded-3xl glass-strong p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-glow/15 text-glow"><Bot className="h-5 w-5" /></div>
-              <div>
-                <div className="text-sm text-white">SHOHO PAY Intelligence</div>
-                <div className="flex items-center gap-1 text-[11px] text-silver/50">Interface concept</div>
-              </div>
-            </div>
-            <div className="space-y-3">
-              {messages.map((m, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }} className={`flex ${m.role === "user" ? "justify-end" : ""}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.role === "user" ? "bg-white text-ink" : "bg-white/5 text-silver hairline"}`}>{m.text}</div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="mt-5 flex items-center gap-2 rounded-2xl bg-white/[0.03] px-3 py-2.5 hairline">
-              <div className="flex-1 text-sm text-silver/50">Ask anything about your money…</div>
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-glow text-ink"><Send className="h-3.5 w-3.5" /></div>
-            </div>
-          </motion.div>
-
-          <div className="space-y-4">
-            {[
-              { icon: TrendingUp, t: "Adaptive budgeting", d: "Auto-categorized spend with weekly insights." },
-              { icon: CircleDollarSign, t: "Smart saving goals", d: "Set a goal — the assistant proposes the plan." },
-              { icon: Sparkles, t: "Personalized investing", d: "Recommendations tuned to your real cash flow." },
-            ].map((f, i) => (
-              <motion.div key={f.t} initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="flex items-start gap-4 rounded-2xl glass p-5">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 text-glow hairline"><f.icon className="h-5 w-5" /></div>
-                <div>
-                  <div className="text-base font-medium text-white">{f.t}</div>
-                  <div className="mt-1 text-sm text-silver/60">{f.d}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </Container>
-    </section>
-  );
-};
-
-/* ------------------------------ Social --------------------------------- */
-
-const Social = () => {
-  const people = [
-    { n: "Layla", a: "L", c: "from-pink-300 to-rose-500" },
-    { n: "Omar", a: "O", c: "from-sky-300 to-blue-600" },
-    { n: "Sara", a: "S", c: "from-amber-200 to-amber-500" },
-    { n: "Yusuf", a: "Y", c: "from-emerald-300 to-emerald-600" },
-    { n: "Nora", a: "N", c: "from-violet-300 to-violet-600" },
-  ];
-  return (
-    <section id="social" className="relative py-32">
-      <Container>
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-          <div>
-            <Eyebrow>Social Payments</Eyebrow>
-            <h2 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
-              <span className="text-gradient-silver">No IBAN. No account numbers.</span>
-              <br />
-              <span className="text-gradient-blue">Just instant finance.</span>
-            </h2>
-            <p className="mt-5 max-w-lg text-lg leading-relaxed text-silver/70">
-              Pay anyone in your contacts in a tap. Request, split, schedule — money designed to move the way you actually talk.
-            </p>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:max-w-md">
-              {["Tap-to-pay anyone", "Split bills in seconds", "Request money", "Group payments"].map((t) => (
-                <div key={t} className="flex items-center gap-2 rounded-xl glass px-3 py-2.5 text-sm text-silver/80">
-                  <CheckCircle2 className="h-4 w-4 text-glow" /> {t}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative h-[480px]">
-            <div className="absolute -inset-10 -z-10 rounded-full bg-glow/10 blur-3xl" />
-            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 400 400">
-              <defs>
-                <linearGradient id="ln" x1="0" x2="1">
-                  <stop offset="0%" stopColor="rgba(90,169,255,0.6)" />
-                  <stop offset="100%" stopColor="rgba(90,169,255,0)" />
-                </linearGradient>
-              </defs>
-              {[[200, 200, 80, 80], [200, 200, 320, 70], [200, 200, 80, 320], [200, 200, 330, 320], [200, 200, 200, 30]].map(([x1, y1, x2, y2], i) => (
-                <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#ln)" strokeWidth="1" strokeDasharray="3 4" />
-              ))}
-            </svg>
-
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="relative">
-                <div className="absolute -inset-3 rounded-full bg-glow/30 blur-xl" />
-                <div className="relative grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-white to-silver/60 text-2xl font-semibold text-ink">You</div>
-              </div>
-            </div>
-
-            {[
-              { p: "top-2 left-10", person: people[0] },
-              { p: "top-4 right-10", person: people[1] },
-              { p: "bottom-10 left-6", person: people[2] },
-              { p: "bottom-6 right-6", person: people[3] },
-              { p: "-top-2 left-1/2 -translate-x-1/2", person: people[4] },
-            ].map((x, i) => (
-              <motion.div key={i} initial={{ opacity: 0, scale: 0.7 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 * i, duration: 0.6 }} className={`absolute ${x.p}`}>
-                <div className="flex items-center gap-3 rounded-full glass px-3 py-2">
-                  <div className={`grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br ${x.person.c} text-sm font-semibold text-white`}>{x.person.a}</div>
-                  <div className="pr-2 text-xs">
-                    <div className="text-white">{x.person.n}</div>
-                    <div className="text-silver/60">Send · Request</div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </Container>
-    </section>
-  );
-};
-
-/* ------------------------------ Why Dubai ------------------------------ */
-
-const WhyDubai = () => (
-  <section id="why" className="relative overflow-hidden py-32">
-    <div className="absolute inset-0 -z-10">
-      <img src={skyline} alt="" loading="lazy" className="h-full w-full object-cover opacity-30" />
-      <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/70 to-ink" />
-    </div>
-    <Container>
-      <div className="grid grid-cols-1 items-end gap-12 lg:grid-cols-2">
-        <div>
-          <Eyebrow tone="gold">Why Dubai</Eyebrow>
-          <h2 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
-            <span className="text-gradient-silver">Built where the future</span>
-            <br />
-            <span className="text-gradient-gold">already lives.</span>
-          </h2>
-        </div>
-        <p className="text-lg leading-relaxed text-silver/70">
-          SHOHO PAY is being built for global residents, modern travelers and digital-native users — at the center of the world's most ambitious financial city. Engineered in Dubai, designed for everywhere.
-        </p>
-      </div>
-
-      <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-3">
-        {[
-          { t: "Global by design", d: "Architected for cross-border residents and businesses." },
-          { t: "Always-on infrastructure", d: "24/7 financial backbone for a connected world." },
-          { t: "One platform", d: "A single intelligent wallet — for everything." },
-        ].map((s) => (
-          <div key={s.t} className="rounded-2xl glass p-6">
-            <div className="text-base font-medium text-white">{s.t}</div>
-            <div className="mt-1.5 text-sm text-silver/60">{s.d}</div>
-          </div>
-        ))}
-      </div>
-    </Container>
-  </section>
-);
-
-/* ------------------------------- Mobile -------------------------------- */
-
-const Mobile = () => {
+const TitaniumCard = () => {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [80, -80]);
+  const ry = useTransform(scrollYProgress, [0, 1], [-25, 25]);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const onMove = (e: React.PointerEvent) => {
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    setTilt({ x: -py * 12, y: px * 14 });
+  };
   return (
-    <section id="mobile" ref={ref} className="relative overflow-hidden py-32">
-      <Container>
-        <SectionHeader
-          eyebrow="Mobile experience"
-          title={<>An ecosystem in your pocket. <span className="text-gradient-blue">Beautifully.</span></>}
-          sub="Every surface — wallet, exchange, gold, crypto, AI and social — flowing in one unified mobile experience."
-        />
-        <motion.div style={{ y }} className="relative mt-16">
-          <div className="absolute left-1/2 top-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-glow/15 blur-3xl" />
-          <img src={iphonesDuo} alt="SHOHO PAY mobile interface concept" loading="lazy" className="mx-auto w-full max-w-4xl" />
-        </motion.div>
-
-        <div className="mx-auto mt-8 grid max-w-4xl grid-cols-1 gap-4 md:grid-cols-3">
-          {[
-            { icon: Smartphone, t: "Native on iOS & Android" },
-            { icon: ShieldCheck, t: "Face ID & biometric vault" },
-            { icon: Sparkles, t: "Adaptive interface" },
-          ].map((f) => (
-            <div key={f.t} className="flex items-center gap-3 rounded-2xl glass px-4 py-3">
-              <f.icon className="h-4 w-4 text-glow" />
-              <span className="text-sm text-white">{f.t}</span>
-            </div>
-          ))}
+    <div ref={ref} className="relative mx-auto aspect-[1.586/1] w-full max-w-md [perspective:1200px]" onPointerLeave={() => setTilt({ x: 0, y: 0 })}>
+      <motion.div
+        style={{ rotateY: ry, transformStyle: "preserve-3d" }}
+        animate={{ rotateX: tilt.x, rotateY: tilt.y }}
+        transition={{ type: "spring", stiffness: 80, damping: 14 }}
+        onPointerMove={onMove}
+        className="titanium relative h-full w-full rounded-3xl p-6 will-change-transform"
+      >
+        <div className="absolute inset-0 overflow-hidden rounded-3xl">
+          <div className="absolute -inset-x-1 -top-1/3 h-1/2 rotate-12 bg-gradient-to-r from-transparent via-white/15 to-transparent shimmer" />
         </div>
-      </Container>
-    </section>
+        <div className="relative flex h-full flex-col justify-between">
+          <div className="flex items-start justify-between">
+            <div className="font-display text-sm font-semibold tracking-[0.3em] text-snow/90">SHOHO</div>
+            <div className="h-7 w-10 rounded-md bg-gradient-gold opacity-90" />
+          </div>
+          <div className="space-y-2">
+            <div className="font-mono text-base tracking-[0.25em] text-snow/85">5212  ••••  ••••  9947</div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[9px] uppercase tracking-widest text-silver/60">Cardholder</div>
+                <div className="text-xs text-snow/85">A. AL MAKTOUM</div>
+              </div>
+              <div className="text-right">
+                <div className="text-[9px] uppercase tracking-widest text-silver/60">Exp</div>
+                <div className="text-xs text-snow/85">11 / 29</div>
+              </div>
+              <div className="font-display text-xl font-bold italic text-snow/90">VISA</div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
   );
 };
 
-/* ------------------------------ Roadmap -------------------------------- */
+const Hero = () => (
+  <section className="relative isolate overflow-hidden pt-32 md:pt-44">
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+      <div className="absolute inset-0 bg-gradient-hero" />
+      <div className="absolute inset-0 grid-lines opacity-[0.15]" />
+      <HeroParticles />
+      <div className="absolute -left-32 top-40 h-[400px] w-[400px] rounded-full bg-glow/20 blur-[120px]" />
+      <div className="absolute -right-20 top-10 h-[360px] w-[360px] rounded-full bg-gold/10 blur-[120px]" />
+    </div>
+    <Container className="relative grid items-center gap-14 pb-24 md:grid-cols-2 md:pb-32">
+      <div>
+        <Reveal>
+          <Eyebrow>Now in Private Beta · UAE</Eyebrow>
+        </Reveal>
+        <h1 className="font-display mt-6 text-balance text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
+          <span className="text-gradient-silver">The Future of Money.</span><br />
+          <span className="text-gradient-blue">Built for the UAE.</span>
+        </h1>
+        <p className="mt-6 max-w-xl text-lg leading-relaxed text-silver/85">
+          One app for payments, crypto, gold and AI-powered financial intelligence — engineered in Dubai for the world.
+        </p>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link to="/waitlist" onClick={() => track("cta_click", { button_label: "hero_waitlist" })} className="group inline-flex items-center justify-center gap-2 rounded-full bg-glow px-6 py-4 text-sm font-medium text-white shadow-[0_14px_40px_-10px_rgba(45,127,255,0.7)] transition hover:bg-glow/90">
+            Join 50,000+ on the Waitlist <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </Link>
+          <a href="#demo" onClick={() => track("cta_click", { button_label: "hero_demo" })} className="inline-flex items-center justify-center gap-2 rounded-full glass px-6 py-4 text-sm text-snow hover:bg-white/10">
+            Watch the Demo <ArrowUpRight className="h-4 w-4" />
+          </a>
+        </div>
+        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-silver/70">
+          <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5 text-glow" /> 256-bit encryption</span>
+          <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-glow" /> UAE Central Bank compliant</span>
+          <span className="inline-flex items-center gap-1.5"><Fingerprint className="h-3.5 w-3.5 text-glow" /> Biometric secured</span>
+        </div>
+      </div>
+      <Reveal delay={0.15}>
+        <TitaniumCard />
+      </Reveal>
+    </Container>
+  </section>
+);
 
-const roadmap = [
-  { phase: "Phase 01", title: "Foundation", body: "Brand, vision and ecosystem architecture established. Investor and partnership conversations." },
-  { phase: "Phase 02", title: "Early Access", body: "Closed waitlist opens. Onboarding for first residents, businesses and design partners." },
-  { phase: "Phase 03", title: "Wallet Launch", body: "Public release of the SHOHO PAY wallet — AED-first, multi-currency, AI-assisted." },
-  { phase: "Phase 04", title: "Full Ecosystem", body: "Gold, crypto, social payments and the AI financial assistant unified in one platform." },
-];
-
-const Roadmap = () => (
-  <section id="roadmap" className="relative py-32">
+/* =========================================================
+   TRUSTED BY
+========================================================= */
+const press = ["FORBES MIDDLE EAST", "GULF NEWS", "ARABIAN BUSINESS", "KHALEEJ TIMES", "TECHCRUNCH", "BLOOMBERG"];
+const TrustedBy = () => (
+  <section className="relative py-16">
     <Container>
-      <SectionHeader
-        eyebrow="Future roadmap"
-        title={<>A staged path to a <span className="text-gradient-blue">complete ecosystem.</span></>}
-        sub="SHOHO PAY is being built deliberately — premium, regulated and global from day one."
-      />
-      <div className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {roadmap.map((r, i) => (
-          <motion.div key={r.phase} variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-15%" }} custom={i} className="relative rounded-2xl glass p-6">
-            <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-glow">
-              <Map className="h-3.5 w-3.5" /> {r.phase}
-            </div>
-            <div className="mt-3 text-lg font-medium text-white">{r.title}</div>
-            <div className="mt-2 text-sm text-silver/60">{r.body}</div>
-          </motion.div>
+      <p className="text-center text-[11px] uppercase tracking-[0.3em] text-silver/60">Featured in</p>
+      <div className="mt-8 grid grid-cols-2 items-center gap-x-8 gap-y-6 md:grid-cols-6">
+        {press.map((p) => (
+          <div key={p} className="text-center font-display text-xs font-semibold tracking-[0.18em] text-silver/50 transition hover:text-silver/80">{p}</div>
         ))}
       </div>
     </Container>
   </section>
 );
 
-/* --------------------------- Early Access ------------------------------ */
+/* =========================================================
+   PRODUCT DEMO (3 phones / mock app)
+========================================================= */
+const txns = [
+  { name: "Carrefour MOE", amount: -184.5, type: "Card", color: "text-rose-300" },
+  { name: "Salary · DMCC FZE", amount: 18250, type: "Inbound", color: "text-emerald-300" },
+  { name: "Emirates Airlines", amount: -2849, type: "Card", color: "text-rose-300" },
+  { name: "Send · Ahmed K.", amount: -500, type: "P2P", color: "text-rose-300" },
+  { name: "Gold buy · 2.4g", amount: -612.4, type: "Vault", color: "text-rose-300" },
+  { name: "BTC · 0.012", amount: -1340, type: "Crypto", color: "text-rose-300" },
+  { name: "Refund · Noon", amount: 89, type: "Inbound", color: "text-emerald-300" },
+];
 
-const EarlyAccess = () => {
-  const types = ["Individual", "Business", "Investor"] as const;
-  const [type, setType] = useState<(typeof types)[number]>("Individual");
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
-  const set = (k: string) => (v: string) => setForm({ ...form, [k]: v });
-  const [loading, setLoading] = useState(false);
-  const [ok, setOk] = useState(false);
+const PhoneMock = ({ children, className = "" }: { children: ReactNode; className?: string }) => (
+  <div className={`relative mx-auto aspect-[9/19] w-[260px] rounded-[42px] bg-gradient-to-b from-[#1a1a1f] to-black p-1.5 shadow-[0_40px_120px_-20px_rgba(0,0,0,0.8)] ${className}`}>
+    <div className="absolute left-1/2 top-1.5 z-10 h-5 w-24 -translate-x-1/2 rounded-b-2xl bg-black" />
+    <div className="relative h-full w-full overflow-hidden rounded-[36px] bg-ink p-4">{children}</div>
+  </div>
+);
 
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => { setLoading(false); setOk(true); }, 900);
-  };
-
-  return (
-    <section id="early-access" className="relative py-32">
-      <Container>
-        <SectionHeader
-          eyebrow="Early access · Investor interest"
-          title={<>Join the <span className="text-gradient-blue">SHOHO PAY</span> waitlist.</>}
-          sub="Be among the first to experience the future of finance from Dubai — or open a conversation about partnership and investment."
-        />
-
-        <div className="mx-auto mt-12 max-w-xl">
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="rounded-3xl glass-strong p-6 md:p-8">
-            {ok ? (
-              <div className="rounded-2xl border border-glow/30 bg-glow/10 p-6 text-center">
-                <CheckCircle2 className="mx-auto h-10 w-10 text-glow" />
-                <div className="mt-4 text-lg font-medium text-white">Thank you.</div>
-                <div className="mt-1 text-sm text-silver/70">You're on the {type.toLowerCase()} list. The SHOHO PAY team in Dubai will be in touch.</div>
-              </div>
-            ) : (
-              <form onSubmit={submit} className="space-y-4">
-                <FieldInput label="Name" value={form.name} onChange={set("name")} required />
-                <FieldInput label="Email" type="email" value={form.email} onChange={set("email")} required />
-                <FieldInput label="Phone (optional)" type="tel" value={form.phone} onChange={set("phone")} placeholder="+971 50 000 0000" />
-                <div>
-                  <span className="mb-2 block text-[11px] uppercase tracking-widest text-silver/60">I am a…</span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {types.map((t) => (
-                      <button type="button" key={t} onClick={() => setType(t)} className={`rounded-xl px-3 py-3 text-sm transition ${type === t ? "bg-white text-ink" : "glass text-silver hover:bg-white/10"}`}>{t}</button>
-                    ))}
-                  </div>
-                </div>
-                <button type="submit" disabled={loading} className="group mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90 disabled:opacity-60">
-                  {loading && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink/30 border-t-ink" />}
-                  Register Interest
-                </button>
-              </form>
-            )}
-          </motion.div>
-        </div>
-      </Container>
-    </section>
-  );
-};
-
-/* ------------------------------ Contact -------------------------------- */
-
-const Contact = () => {
-  const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
-  const set = (k: string) => (v: string) => setForm({ ...form, [k]: v });
-  const [loading, setLoading] = useState(false);
-  const [ok, setOk] = useState(false);
-
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { supabase } = await import("./integrations/supabase/client");
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      setLoading(false);
-      window.location.href = "/auth";
-      return;
-    }
-    const { error } = await supabase.from("contact_messages").insert({
-      name: form.name, email: form.email, phone: form.company || null, message: form.message,
-    });
-    setLoading(false);
-    if (error) { console.error(error); return; }
-    setOk(true);
-  };
-
-  return (
-    <section id="contact" className="relative py-32">
-      <Container>
-        <SectionHeader
-          eyebrow="Contact"
-          title={<>Let's <span className="text-gradient-blue">talk.</span></>}
-          sub="Partnerships, press and investor inquiries — direct line to our Dubai HQ."
-        />
-
-        <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-5">
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="rounded-3xl glass-strong p-6 md:p-8 lg:col-span-3">
-            {ok ? (
-              <div className="rounded-2xl border border-glow/30 bg-glow/10 p-6 text-center">
-                <CheckCircle2 className="mx-auto h-10 w-10 text-glow" />
-                <div className="mt-4 text-lg font-medium text-white">Message received.</div>
-                <div className="mt-1 text-sm text-silver/70">We'll respond from Dubai within 24 hours.</div>
-              </div>
-            ) : (
-              <form onSubmit={submit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FieldInput label="Name" value={form.name} onChange={set("name")} required />
-                <FieldInput label="Email" type="email" value={form.email} onChange={set("email")} required />
-                <div className="md:col-span-2"><FieldInput label="Company (optional)" value={form.company} onChange={set("company")} /></div>
-                <label className="block md:col-span-2">
-                  <span className="mb-1.5 block text-[11px] uppercase tracking-widest text-silver/60">Message</span>
-                  <textarea required value={form.message} onChange={(e) => set("message")(e.target.value)} rows={5} className="w-full rounded-xl bg-white/[0.03] px-4 py-3 text-sm text-white outline-none hairline focus:bg-white/[0.06] focus:ring-2 focus:ring-glow/40" />
-                </label>
-                <div className="md:col-span-2">
-                  <button type="submit" disabled={loading} className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90 disabled:opacity-60">
-                    {loading && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink/30 border-t-ink" />}
-                    Send Message
-                  </button>
-                </div>
-              </form>
-            )}
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.1 }} className="rounded-3xl glass-strong p-6 md:p-8 lg:col-span-2">
-            <div className="text-[11px] uppercase tracking-widest text-silver/60">SHOHO PAY HQ</div>
-            <div className="mt-2 text-2xl font-semibold text-gradient-silver">Dubai · DIFC</div>
-            <div className="mt-6 space-y-4 text-sm text-silver/80">
-              <div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 text-glow" /> Gate Village 10, DIFC, Dubai, UAE</div>
-              <div className="flex items-start gap-3"><Mail className="mt-0.5 h-4 w-4 text-glow" /> hello@shohopay.com</div>
-              <div className="flex items-start gap-3"><Phone className="mt-0.5 h-4 w-4 text-glow" /> +971 4 000 0000</div>
-            </div>
-            <div className="mt-6 rounded-2xl bg-white/[0.03] p-4 hairline text-xs text-silver/60">
-              A Dubai-based fintech building the next generation of borderless finance. Open to strategic investors, partners and press.
-            </div>
-          </motion.div>
-        </div>
-      </Container>
-    </section>
-  );
-};
-
-/* --------------------------------- CTA --------------------------------- */
-
-const CTA = () => (
-  <section id="cta" className="relative overflow-hidden py-36">
-    <div className="absolute inset-0 -z-10">
-      <img src={skyline} alt="" loading="lazy" className="h-full w-full object-cover opacity-40" />
-      <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/60 to-ink" />
-      <div className="absolute inset-0 grid-lines opacity-30" />
-      <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-glow/20 blur-3xl" />
-    </div>
+const ProductDemo = () => (
+  <section id="demo" className="relative py-24 md:py-32">
     <Container>
-      <div className="mx-auto max-w-4xl text-center">
-        <Eyebrow><span className="inline-flex items-center gap-1.5"><Rocket className="h-3 w-3" /> Coming soon</span></Eyebrow>
-        <h2 className="mt-6 text-balance text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
-          <span className="text-gradient-silver">Finance should feel</span>
-          <br />
-          <span className="text-gradient-blue">intelligent, seamless and borderless.</span>
-        </h2>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-silver/70">
-          SHOHO PAY — building the next generation financial ecosystem from Dubai.
-        </p>
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <button onClick={() => scrollToId("early-access")} className="group inline-flex items-center gap-2 rounded-full bg-white px-7 py-4 text-sm font-medium text-ink transition hover:bg-white/90">
-            Join Early Access
-            <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </button>
-          <button onClick={() => scrollToId("contact")} className="inline-flex items-center gap-2 rounded-full glass px-7 py-4 text-sm text-white transition hover:bg-white/10">
-            Contact Us
-          </button>
-        </div>
+      <SectionHead eyebrow="Product · Live Demo" title={<>One app. <span className="text-gradient-blue">Every asset.</span></>} sub="Move money, hold gold, trade crypto and let Billy keep your finances in flow — without leaving Shoho." />
+      <div className="mt-16 grid items-center gap-10 lg:grid-cols-3">
+        <Reveal>
+          <PhoneMock>
+            <div className="text-[10px] uppercase tracking-widest text-silver/60">Wallet</div>
+            <div className="font-display mt-1 text-3xl font-semibold text-snow">AED 24,182<span className="text-silver/40">.40</span></div>
+            <div className="mt-1 text-xs text-emerald-300">+ 2.4% this week</div>
+            <div className="mt-5 grid grid-cols-4 gap-2">
+              {[{i: Send, l:"Send"},{i: CircleDollarSign, l:"Convert"},{i: Coins, l:"Gold"},{i: Bitcoin, l:"Crypto"}].map(({i:Ic,l})=> (
+                <div key={l} className="rounded-2xl glass p-3 text-center">
+                  <Ic className="mx-auto h-4 w-4 text-glow" />
+                  <div className="mt-1.5 text-[10px] text-silver">{l}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 text-[10px] uppercase tracking-widest text-silver/60">Recent</div>
+            <div className="mt-2 space-y-2">
+              {txns.slice(0,4).map((t)=>(
+                <div key={t.name} className="flex items-center justify-between rounded-xl glass px-3 py-2">
+                  <div>
+                    <div className="text-[11px] text-snow">{t.name}</div>
+                    <div className="text-[9px] uppercase tracking-widest text-silver/50">{t.type}</div>
+                  </div>
+                  <div className={`font-mono text-[11px] ${t.color}`}>{t.amount > 0 ? "+" : ""}{t.amount.toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </PhoneMock>
+        </Reveal>
+        <Reveal delay={0.1}>
+          <PhoneMock className="lg:-translate-y-6">
+            <div className="text-[10px] uppercase tracking-widest text-silver/60">Billy · AI Accountant</div>
+            <div className="mt-3 rounded-2xl glass-strong p-3 text-[11px] text-snow leading-relaxed">
+              You're 12% under budget this month. Want me to auto-move <span className="text-glow">AED 1,000</span> to your gold vault?
+            </div>
+            <div className="mt-2 flex gap-2">
+              <button className="flex-1 rounded-full bg-glow py-1.5 text-[11px] font-medium text-white">Yes, move it</button>
+              <button className="rounded-full glass px-3 py-1.5 text-[11px] text-silver">Later</button>
+            </div>
+            <div className="mt-4 text-[10px] uppercase tracking-widest text-silver/60">Insights</div>
+            <div className="mt-2 space-y-2">
+              {["Coffee spend down 18%", "Subscriptions: 3 unused", "FX saved AED 412"].map((i)=>(
+                <div key={i} className="flex items-center gap-2 rounded-xl glass px-3 py-2 text-[11px] text-snow">
+                  <Sparkles className="h-3 w-3 text-glow" /> {i}
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 rounded-2xl bg-gradient-to-br from-glow/30 to-glow/0 p-3 text-[11px] text-snow">
+              <TrendingUp className="mb-1 inline h-3.5 w-3.5 text-glow" /> Forecast: +AED 3,200 net by month-end.
+            </div>
+          </PhoneMock>
+        </Reveal>
+        <Reveal delay={0.2}>
+          <PhoneMock>
+            <div className="text-[10px] uppercase tracking-widest text-silver/60">Gold Vault</div>
+            <div className="font-display mt-1 text-3xl font-semibold text-gradient-gold">14.82 g</div>
+            <div className="mt-1 text-xs text-silver/70">≈ AED 4,128 · 24K</div>
+            <div className="mt-4 h-32 rounded-2xl bg-gradient-to-br from-gold/30 via-gold/10 to-transparent p-4">
+              <div className="flex items-end justify-between h-full">
+                {[24,38,30,52,46,68,72,60,78,84,90,96].map((h,i)=>(
+                  <div key={i} className="w-2 rounded-full bg-gold-grad" style={{ height: `${h}%`, opacity: 0.4 + i*0.04 }} />
+                ))}
+              </div>
+            </div>
+            <button className="mt-4 w-full rounded-full bg-gradient-gold py-2.5 text-xs font-semibold text-ink">Buy Gold</button>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-xl glass p-2.5">
+                <div className="text-[9px] uppercase tracking-widest text-silver/60">BTC</div>
+                <div className="font-mono text-xs text-snow">$68,402</div>
+              </div>
+              <div className="rounded-xl glass p-2.5">
+                <div className="text-[9px] uppercase tracking-widest text-silver/60">ETH</div>
+                <div className="font-mono text-xs text-snow">$3,184</div>
+              </div>
+            </div>
+          </PhoneMock>
+        </Reveal>
       </div>
     </Container>
   </section>
 );
 
-/* -------------------------------- Footer -------------------------------- */
+/* =========================================================
+   FEATURE CARDS
+========================================================= */
+const features = [
+  { i: Wallet, t: "Multi-Currency Wallet", d: "Hold AED, USD, EUR, GBP and 30+ currencies. Spend natively — no FX surprises." },
+  { i: Bitcoin, t: "Crypto, Made Simple", d: "Buy, hold and swap BTC, ETH and majors with institutional-grade custody." },
+  { i: Coins, t: "Digital Gold", d: "Buy 24K gold by the gram. Vaulted, insured and redeemable in Dubai." },
+  { i: Bot, t: "Billy — AI Accountant", d: "Your money's chief of staff. Budgets, forecasts and auto-saves on autopilot." },
+  { i: Zap, t: "Instant Transfers", d: "Send to anyone — wallet to wallet — in seconds. Locally and worldwide." },
+  { i: Globe2, t: "Real Interbank FX", d: "Mid-market rates, zero hidden spreads. The honest way to move money." },
+];
+
+const Features = () => (
+  <section className="relative py-24 md:py-32">
+    <Container>
+      <SectionHead eyebrow="Capabilities" title={<>Everything your money <span className="text-gradient-blue">can do.</span></>} sub="Six core capabilities, woven into one calm interface." />
+      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {features.map((f, i) => (
+          <Reveal key={f.t} delay={i * 0.06}>
+            <div className="group relative h-full overflow-hidden rounded-3xl glass-card p-7 transition duration-500 hover:-translate-y-2 hover:border-glow/30">
+              <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-glow/10 blur-3xl opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <div className="grid h-11 w-11 place-items-center rounded-xl glass">
+                  <f.i className="h-5 w-5 text-glow" />
+                </div>
+                <h3 className="font-display mt-5 text-xl font-semibold text-snow">{f.t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-silver/75">{f.d}</p>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   AI SECTION
+========================================================= */
+const AISection = () => (
+  <section className="relative overflow-hidden py-24 md:py-32">
+    <div aria-hidden className="absolute inset-0 -z-10 dots-bg opacity-[0.3]" />
+    <Container className="grid items-center gap-14 md:grid-cols-2">
+      <Reveal>
+        <Eyebrow>Meet Billy</Eyebrow>
+        <h2 className="font-display mt-5 text-balance text-4xl font-semibold leading-[1.05] text-gradient-silver md:text-5xl">
+          The first <span className="text-gradient-blue">AI accountant</span> inside a wallet.
+        </h2>
+        <p className="mt-5 text-base leading-relaxed text-silver/80 md:text-lg">
+          Billy watches every dirham — categorising, forecasting, negotiating and quietly optimising your finances in real time. Calm, private, always on your side.
+        </p>
+        <ul className="mt-7 space-y-3 text-sm text-silver">
+          {["Real-time budgeting that adapts to your life", "Auto-save & auto-invest rules that compound quietly", "Forecast your runway 90 days out — with confidence bands", "Privacy-first: your data never trains a public model"].map((p) => (
+            <li key={p} className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-glow" /> {p}</li>
+          ))}
+        </ul>
+        <Link to="/features" className="mt-8 inline-flex items-center gap-1.5 text-sm text-snow hover:gap-2 transition-all">Explore the intelligence layer <ArrowRight className="h-4 w-4" /></Link>
+      </Reveal>
+      <Reveal delay={0.15}>
+        <div className="relative mx-auto aspect-square w-full max-w-md">
+          <div className="absolute inset-0 rounded-full bg-glow/20 blur-3xl animate-pulse-glow" />
+          <div className="absolute inset-8 rounded-full border border-glow/30" />
+          <div className="absolute inset-16 rounded-full border border-glow/20" />
+          <div className="absolute inset-24 rounded-full border border-glow/10" />
+          <div className="absolute left-1/2 top-1/2 grid h-28 w-28 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-gradient-to-br from-glow to-glow/40 glow-blue">
+            <Bot className="h-12 w-12 text-white" />
+          </div>
+          {[
+            { ic: TrendingUp, t: "+ AED 412 saved", cls: "top-6 left-4" },
+            { ic: Sparkles, t: "Budget on track", cls: "bottom-12 right-2" },
+            { ic: Coins, t: "Auto-bought 1.2g gold", cls: "bottom-4 left-10" },
+            { ic: Zap, t: "FX saved AED 84", cls: "top-16 right-4" },
+          ].map((b, i) => (
+            <motion.div key={b.t} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }} className={`absolute ${b.cls} flex items-center gap-2 rounded-full glass-strong px-3 py-2 text-[11px] text-snow shadow-xl`}>
+              <b.ic className="h-3.5 w-3.5 text-glow" /> {b.t}
+            </motion.div>
+          ))}
+        </div>
+      </Reveal>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   FX ORBIT
+========================================================= */
+const fxItems = [
+  { sym: "USD", rate: "1 USD = 3.6725 AED" },
+  { sym: "EUR", rate: "1 EUR = 3.98 AED" },
+  { sym: "GBP", rate: "1 GBP = 4.64 AED" },
+  { sym: "BTC", rate: "1 BTC = $68,402" },
+  { sym: "ETH", rate: "1 ETH = $3,184" },
+  { sym: "XAU", rate: "1g Gold = AED 278" },
+];
+
+const FXSection = () => (
+  <section className="relative overflow-hidden py-24 md:py-32">
+    <Container className="grid items-center gap-14 md:grid-cols-2">
+      <Reveal>
+        <div className="relative mx-auto aspect-square w-full max-w-md">
+          <div className="absolute inset-0 grid place-items-center">
+            <div className="relative h-32 w-32 rounded-full bg-gradient-to-br from-glow via-glow/60 to-glow/10 glow-blue">
+              <div className="absolute inset-2 rounded-full bg-ink grid place-items-center">
+                <Globe2 className="h-12 w-12 text-glow" />
+              </div>
+            </div>
+          </div>
+          {fxItems.map((it, i) => {
+            const r = 150 + (i % 3) * 30;
+            return (
+              <div key={it.sym} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ ["--r" as string]: `${r}px`, animation: `orbit ${20 + i * 3}s linear infinite` }}>
+                <div className="group relative grid h-12 w-12 place-items-center rounded-full glass-strong font-mono text-[10px] font-semibold text-snow">
+                  {it.sym}
+                  <div className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full glass px-2.5 py-1 text-[10px] text-silver opacity-0 transition group-hover:opacity-100">
+                    {it.rate}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Reveal>
+      <Reveal delay={0.1}>
+        <Eyebrow>Borderless FX</Eyebrow>
+        <h2 className="font-display mt-5 text-balance text-4xl font-semibold leading-[1.05] text-gradient-silver md:text-5xl">
+          Real <span className="text-gradient-blue">interbank rates.</span> No hidden spreads.
+        </h2>
+        <p className="mt-5 text-base leading-relaxed text-silver/80 md:text-lg">
+          30+ currencies, gold and crypto — all on one balance, all at the rates the banks actually use. Move money like you mean it.
+        </p>
+        <div className="mt-7 grid grid-cols-2 gap-3">
+          {fxItems.slice(0,4).map((it) => (
+            <div key={it.sym} className="rounded-2xl glass-card p-4">
+              <div className="font-mono text-[10px] uppercase tracking-widest text-silver/60">{it.sym}</div>
+              <div className="font-display mt-1 text-base text-snow">{it.rate}</div>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   STATS
+========================================================= */
+const Counter = ({ to, prefix = "", suffix = "", duration = 2.4 }: { to: number; prefix?: string; suffix?: string; duration?: number }) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / (duration * 1000));
+      const eased = 1 - Math.pow(1 - t, 4);
+      setN(Math.round(to * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, to, duration]);
+  return <span ref={ref} className="font-display tabular-nums">{prefix}{n.toLocaleString()}{suffix}</span>;
+};
+
+const Stats = () => (
+  <section className="relative py-20">
+    <Container>
+      <div className="grid gap-6 rounded-3xl glass-strong p-8 md:grid-cols-4 md:p-12">
+        {[
+          { to: 50000, suffix: "+", l: "Waitlist members" },
+          { to: 2400, suffix: "+", l: "Five-star reviews" },
+          { to: 38, suffix: "M+", l: "AED moved monthly" },
+          { to: 30, suffix: "+", l: "Currencies supported" },
+        ].map((s) => (
+          <div key={s.l} className="text-center">
+            <div className="text-4xl font-semibold text-gradient-silver md:text-5xl"><Counter to={s.to} suffix={s.suffix} /></div>
+            <div className="mt-2 text-xs uppercase tracking-widest text-silver/60">{s.l}</div>
+          </div>
+        ))}
+      </div>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   GOLD
+========================================================= */
+const GoldSection = () => (
+  <section className="relative overflow-hidden py-24 md:py-32">
+    <div aria-hidden className="absolute inset-0 -z-10">
+      <div className="absolute right-0 top-1/4 h-[420px] w-[420px] rounded-full bg-gold/15 blur-[120px]" />
+    </div>
+    <Container className="grid items-center gap-14 md:grid-cols-2">
+      <Reveal>
+        <Eyebrow tone="gold">Digital Gold · Dubai-vaulted</Eyebrow>
+        <h2 className="font-display mt-5 text-balance text-4xl font-semibold leading-[1.05] md:text-5xl">
+          <span className="text-gradient-silver">Buy gold by the gram.</span><br/>
+          <span className="text-gradient-gold">Redeemable in Dubai.</span>
+        </h2>
+        <p className="mt-5 text-base leading-relaxed text-silver/80 md:text-lg">
+          24K investment-grade gold. Stored in a Dubai vault, insured by Lloyd's, redeemable as physical bars whenever you want.
+        </p>
+        <div className="mt-7 grid grid-cols-3 gap-3">
+          {[{l:"Starts at",v:"AED 25"},{l:"Purity",v:"24K"},{l:"Storage",v:"Free"}].map((s)=>(
+            <div key={s.l} className="rounded-2xl glass-card p-4">
+              <div className="text-[10px] uppercase tracking-widest text-silver/60">{s.l}</div>
+              <div className="font-display mt-1 text-xl text-snow">{s.v}</div>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+      <Reveal delay={0.15}>
+        <div className="relative mx-auto aspect-square w-full max-w-md">
+          <div className="absolute inset-0 rounded-[40px] bg-gradient-to-br from-gold/40 via-gold/10 to-transparent blur-2xl" />
+          <div className="relative h-full w-full rounded-[40px] glass-strong p-8">
+            <div className="grid h-full grid-rows-4 gap-3">
+              {[1,0.85,0.7,0.55].map((s, i)=>(
+                <div key={i} className="relative overflow-hidden rounded-2xl bg-gradient-gold glow-gold" style={{ transform: `scaleX(${s})`, transformOrigin: "left" }}>
+                  <div className="shimmer absolute inset-0" />
+                  <div className="absolute inset-0 flex items-center justify-between px-4 text-[10px] font-mono text-ink/70">
+                    <span>SHOHO · 999.9 FINE GOLD</span>
+                    <span>{(0.5 + i*0.5).toFixed(1)} OZ</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   SECURITY
+========================================================= */
+const SecuritySection = () => (
+  <section className="relative py-24 md:py-32">
+    <Container>
+      <SectionHead eyebrow="Security · By Design" title={<>Engineered to be <span className="text-gradient-blue">untouchable.</span></>} sub="Bank-grade defence-in-depth — independently audited, continuously verified." />
+      <div className="mt-14 grid gap-5 md:grid-cols-3">
+        {[
+          { i: Lock, t: "256-bit Encryption", d: "End-to-end, at rest and in flight. Zero-knowledge architecture for key material." },
+          { i: Fingerprint, t: "Biometric Auth", d: "Face ID, fingerprint, hardware-key support and per-device session binding." },
+          { i: ShieldCheck, t: "Regulated & Compliant", d: "UAE Central Bank aligned · DIFC registered · ISO 27001 · PCI-DSS." },
+          { i: Cpu, t: "Custody-Grade Vault", d: "Cold storage with multi-sig and HSMs — the same posture used by institutions." },
+          { i: Sparkles, t: "AI Fraud Watch", d: "Billy flags anomalies in milliseconds and pauses suspicious flows before they ship." },
+          { i: Smartphone, t: "Instant Freeze", d: "Lose your phone? Freeze cards, sessions and crypto access from any device." },
+        ].map((s, i) => (
+          <Reveal key={s.t} delay={i * 0.05}>
+            <div className="h-full rounded-3xl glass-card p-7">
+              <div className="grid h-11 w-11 place-items-center rounded-xl bg-glow/10 text-glow"><s.i className="h-5 w-5" /></div>
+              <h3 className="font-display mt-5 text-lg font-semibold text-snow">{s.t}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-silver/75">{s.d}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   TESTIMONIALS
+========================================================= */
+const quotes = [
+  { q: "Shoho replaced four apps in my pocket. The AI assistant is the part I didn't know I needed.", n: "Layla H.", r: "Founder · Dubai" },
+  { q: "Saved me AED 12,000 in transfer fees last year. The FX rates are simply honest.", n: "Marcus W.", r: "Operator · Abu Dhabi" },
+  { q: "Buying gold from my phone, vaulted in Dubai, while Billy budgets in the background. Brilliant.", n: "Fatima A.", r: "Designer · Sharjah" },
+];
+
+const Testimonials = () => (
+  <section className="relative py-24 md:py-32">
+    <Container>
+      <SectionHead eyebrow="Loved by the UAE" title={<>4.9 / 5 from <span className="text-gradient-blue">2,400+ reviews.</span></>} />
+      <div className="mt-14 grid gap-5 md:grid-cols-3">
+        {quotes.map((q, i) => (
+          <Reveal key={q.n} delay={i * 0.08}>
+            <figure className="h-full rounded-3xl glass-card p-7">
+              <div className="flex gap-0.5 text-gold">{Array.from({length:5}).map((_,j)=><Star key={j} className="h-4 w-4 fill-current" />)}</div>
+              <blockquote className="mt-4 text-base leading-relaxed text-snow">"{q.q}"</blockquote>
+              <figcaption className="mt-6 flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-glow to-glow/30 text-xs font-semibold text-white">{q.n.split(" ").map(p=>p[0]).join("")}</div>
+                <div>
+                  <div className="text-sm text-snow">{q.n}</div>
+                  <div className="text-xs text-silver/60">{q.r}</div>
+                </div>
+              </figcaption>
+            </figure>
+          </Reveal>
+        ))}
+      </div>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   PRICING PREVIEW
+========================================================= */
+const plans = [
+  { n: "Lite", p: "Free", d: "Everything you need to start.", f: ["Multi-currency wallet", "Send & receive in seconds", "Billy AI · essentials"], cta: "Start free" },
+  { n: "Plus", p: "AED 29", s: "/mo", d: "For people who move money seriously.", f: ["Real interbank FX", "Gold vault · zero fees", "Crypto with priority spreads", "Billy AI · forecasting"], cta: "Go Plus", featured: true },
+  { n: "Private", p: "AED 199", s: "/mo", d: "Concierge-grade finance for high-net-worth.", f: ["Dedicated relationship manager", "Higher limits, lower spreads", "Bespoke AI playbooks", "Priority custody & support"], cta: "Apply" },
+];
+
+const PricingPreview = () => (
+  <section className="relative py-24 md:py-32">
+    <Container>
+      <SectionHead eyebrow="Pricing" title={<>Simple plans. <span className="text-gradient-blue">No surprises.</span></>} sub="Pay only for what you use. Cancel anytime." />
+      <div className="mt-14 grid gap-5 md:grid-cols-3">
+        {plans.map((pl, i) => (
+          <Reveal key={pl.n} delay={i * 0.08}>
+            <div className={`relative h-full rounded-3xl p-8 ${pl.featured ? "glass-strong border-glow/40 glow-blue" : "glass-card"}`}>
+              {pl.featured && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-glow px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">Most popular</span>}
+              <div className="font-display text-sm uppercase tracking-[0.18em] text-silver/70">{pl.n}</div>
+              <div className="mt-4 flex items-baseline gap-1">
+                <div className="font-display text-5xl font-semibold text-snow">{pl.p}</div>
+                {pl.s && <div className="text-sm text-silver/60">{pl.s}</div>}
+              </div>
+              <p className="mt-2 text-sm text-silver/75">{pl.d}</p>
+              <ul className="mt-6 space-y-2.5 text-sm text-silver">
+                {pl.f.map((f) => <li key={f} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-glow" /> {f}</li>)}
+              </ul>
+              <Link to="/waitlist" className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition ${pl.featured ? "bg-glow text-white hover:bg-glow/90" : "glass text-snow hover:bg-white/10"}`}>{pl.cta} <ArrowRight className="h-4 w-4" /></Link>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   FAQ
+========================================================= */
+const faqs = [
+  { q: "Is Shoho Pay licensed in the UAE?", a: "Yes — Shoho Pay operates aligned with UAE Central Bank guidelines and is registered in DIFC. Custody and gold vaulting are handled by regulated institutional partners." },
+  { q: "What does Billy, the AI assistant, actually do?", a: "Billy categorises spending in real time, builds adaptive budgets, forecasts your runway, negotiates better subscriptions and quietly auto-saves or auto-invests according to rules you set." },
+  { q: "Can I redeem my digital gold as physical bars?", a: "Absolutely. Any balance over 10g can be redeemed as physical 24K gold from our Dubai partner vault, with delivery or in-person collection." },
+  { q: "Which currencies and assets are supported?", a: "AED, USD, EUR, GBP, and 30+ more currencies. Plus BTC, ETH and majors for crypto, and 24K gold by the gram." },
+  { q: "How is my money protected?", a: "256-bit end-to-end encryption, biometric login, multi-sig cold custody for crypto, insured gold vaulting, ISO 27001 and PCI-DSS aligned operations." },
+];
+
+const FAQ = () => {
+  const [open, setOpen] = useState(0);
+  return (
+    <section className="relative py-24 md:py-32">
+      <Container>
+        <SectionHead eyebrow="FAQ" title={<>Answered <span className="text-gradient-blue">honestly.</span></>} />
+        <div className="mx-auto mt-12 max-w-3xl space-y-3">
+          {faqs.map((f, i) => {
+            const isOpen = open === i;
+            return (
+              <Reveal key={f.q} delay={i * 0.05}>
+                <div className="overflow-hidden rounded-2xl glass-card">
+                  <button onClick={() => { setOpen(isOpen ? -1 : i); track("faq_expanded", { question: f.q }); }} aria-expanded={isOpen} className="flex w-full items-center justify-between gap-4 p-5 text-left">
+                    <span className="font-display text-base font-medium text-snow md:text-lg">{f.q}</span>
+                    <span className="grid h-8 w-8 flex-none place-items-center rounded-full glass">
+                      {isOpen ? <Minus className="h-4 w-4 text-glow" /> : <Plus className="h-4 w-4 text-glow" />}
+                    </span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease: [0.22,1,0.36,1] }}>
+                        <div className="px-5 pb-5 text-sm leading-relaxed text-silver/80">{f.a}</div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </Container>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+        })
+      }} />
+    </section>
+  );
+};
+
+/* =========================================================
+   FINAL CTA + WAITLIST FORM
+========================================================= */
+export const WaitlistForm = ({ compact = false }: { compact?: boolean }) => {
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
+  const [state, setState] = useState<"idle" | "loading" | "done">("idle");
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (website) return; // bot
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    setState("loading");
+    setTimeout(() => { setState("done"); track("waitlist_signup", { email_domain: email.split("@")[1] }); }, 900);
+  };
+  return (
+    <form onSubmit={submit} className={`mx-auto flex w-full ${compact ? "max-w-md" : "max-w-lg"} flex-col gap-3 sm:flex-row`}>
+      <input type="text" name="website" value={website} onChange={(e)=>setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
+      <label className="sr-only" htmlFor="wl-email">Email</label>
+      <input
+        id="wl-email"
+        type="email"
+        required
+        maxLength={120}
+        placeholder="you@dubai.ae"
+        value={email}
+        onChange={(e)=>setEmail(e.target.value)}
+        className="flex-1 rounded-full bg-white/[0.04] px-5 py-3.5 text-sm text-snow outline-none transition placeholder:text-silver/40 hairline focus:bg-white/[0.07] focus:ring-2 focus:ring-glow/40"
+      />
+      <button type="submit" disabled={state !== "idle"} className="inline-flex items-center justify-center gap-2 rounded-full bg-glow px-6 py-3.5 text-sm font-medium text-white transition hover:bg-glow/90 disabled:opacity-70">
+        {state === "loading" && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
+        {state === "done" ? <><CheckCircle2 className="h-4 w-4" /> You're in</> : "Join Waitlist"}
+      </button>
+    </form>
+  );
+};
+
+const FinalCTA = () => (
+  <section className="relative overflow-hidden py-24 md:py-32">
+    <div aria-hidden className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 bg-gradient-hero" />
+      <div className="absolute left-1/2 top-0 h-[420px] w-[700px] -translate-x-1/2 rounded-full bg-glow/15 blur-[120px]" />
+    </div>
+    <Container className="text-center">
+      <Reveal>
+        <Eyebrow>Early Access · Limited</Eyebrow>
+        <h2 className="font-display mx-auto mt-5 max-w-3xl text-balance text-5xl font-semibold leading-[1.02] text-gradient-silver md:text-7xl">
+          Money is changing.<br/><span className="text-gradient-blue">Be early.</span>
+        </h2>
+        <p className="mx-auto mt-5 max-w-xl text-base text-silver/80 md:text-lg">Join 50,000+ on the Shoho Pay waitlist. We'll email you when your seat opens.</p>
+        <div className="mt-9"><WaitlistForm /></div>
+        <p className="mt-4 text-[11px] text-silver/50">Single opt-in. We never share your email. Spam-protected.</p>
+      </Reveal>
+    </Container>
+  </section>
+);
+
+/* =========================================================
+   FOOTER
+========================================================= */
+const footerCols = [
+  { t: "Product", links: [["Features","/features"], ["Pricing","/pricing"], ["Security","/security"], ["Waitlist","/waitlist"]] as const },
+  { t: "Company", links: [["About","/about"], ["Contact","/contact"]] as const },
+  { t: "Legal",   links: [["Privacy","/contact"], ["Terms","/contact"], ["Compliance","/security"]] as const },
+];
 
 export const Footer = () => (
-  <footer className="border-t border-white/5 py-14">
+  <footer className="relative border-t border-white/[0.06] py-16">
     <Container>
-      <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
-        <div className="col-span-2">
+      <div className="grid gap-12 md:grid-cols-5">
+        <div className="md:col-span-2">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-white/20 to-white/5 hairline text-[10px] font-bold text-white">SH</div>
-            <span className="text-sm font-semibold tracking-[0.18em] text-white">SHOHO PAY</span>
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-glow to-glow/40"><Sparkles className="h-4 w-4 text-white" /></div>
+            <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
           </div>
-          <p className="mt-4 max-w-xs text-sm text-silver/60">
-            The future financial lifestyle ecosystem — built in Dubai, designed for the world.
-          </p>
+          <p className="mt-5 max-w-sm text-sm text-silver/70">The luxury wallet of the UAE — payments, crypto, gold and Billy, your AI accountant. Built in Dubai.</p>
+          <form onSubmit={(e)=>e.preventDefault()} className="mt-6 flex max-w-sm gap-2">
+            <input type="email" placeholder="Newsletter email" className="flex-1 rounded-full bg-white/[0.04] px-4 py-2.5 text-sm text-snow outline-none hairline placeholder:text-silver/40 focus:ring-2 focus:ring-glow/40" />
+            <button className="rounded-full bg-snow px-4 py-2.5 text-sm font-medium text-ink hover:bg-white">Subscribe</button>
+          </form>
+          <div className="mt-6 flex gap-3 text-silver">
+            <a href="#" aria-label="Twitter" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Twitter className="h-4 w-4" /></a>
+            <a href="#" aria-label="LinkedIn" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Linkedin className="h-4 w-4" /></a>
+            <a href="#" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>
+          </div>
         </div>
-        {[
-          { h: "Ecosystem", l: [["Wallet","wallet"], ["Exchange","exchange"], ["Gold","gold"], ["Crypto","crypto"], ["AI Finance","ai"], ["Social","social"]] as [string,string][] },
-          { h: "Company", l: [["Overview","overview"], ["Why Dubai","why"], ["Roadmap","roadmap"], ["Mobile","mobile"]] as [string,string][] },
-          { h: "Get in touch", l: [["Early Access","early-access"], ["Contact","contact"]] as [string,string][] },
-        ].map((c) => (
-          <div key={c.h}>
-            <div className="text-[11px] uppercase tracking-widest text-silver/40">{c.h}</div>
-            <ul className="mt-4 space-y-2">
-              {c.l.map(([label, id]) => (
-                <li key={label}>
-                  <button onClick={() => scrollToId(id)} className="text-sm text-silver/70 hover:text-white">{label}</button>
-                </li>
+        {footerCols.map((c)=>(
+          <div key={c.t}>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-silver/50">{c.t}</div>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {c.links.map(([l,h])=>(
+                <li key={l}><Link to={h} className="text-silver hover:text-snow">{l}</Link></li>
               ))}
             </ul>
           </div>
         ))}
       </div>
-      <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/5 pt-6 text-xs text-silver/40 md:flex-row md:items-center">
-        <div>© {new Date().getFullYear()} SHOHO PAY. All rights reserved.</div>
-        <div>Dubai · United Arab Emirates</div>
+      <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-silver/60 md:flex-row md:items-center">
+        <div>© {new Date().getFullYear()} Shoho Pay. Aligned with UAE Central Bank guidelines · DIFC registered.</div>
+        <div className="flex items-center gap-3">
+          <button className="rounded-full glass px-3 py-1 hover:text-snow">EN</button>
+          <button className="rounded-full px-3 py-1 hover:text-snow">عربي</button>
+        </div>
       </div>
     </Container>
   </footer>
 );
 
-/* ---------------------------------- App ---------------------------------- */
-
+/* =========================================================
+   HOME
+========================================================= */
 export default function Home() {
-  const [demoOpen, setDemoOpen] = useState(false);
   return (
     <>
-      <Hero onWatchDemo={() => setDemoOpen(true)} />
-      <Overview />
-      <Principles />
-      <WalletSection />
-      <ExchangeSection />
-      <Gold />
-      <Crypto />
+      <Hero />
+      <TrustedBy />
+      <ProductDemo />
+      <Features />
       <AISection />
-      <Social />
-      <WhyDubai />
-      <Mobile />
-      <Roadmap />
-      <EarlyAccess />
-      <Contact />
-      <CTA />
-      <DemoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
+      <FXSection />
+      <Stats />
+      <GoldSection />
+      <SecuritySection />
+      <Testimonials />
+      <PricingPreview />
+      <FAQ />
+      <FinalCTA />
     </>
   );
 }

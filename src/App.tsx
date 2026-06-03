@@ -5,6 +5,12 @@ import Home from "./Home";
 import AuthPage from "./pages/Auth";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
+import Features from "./pages/Features";
+import Pricing from "./pages/Pricing";
+import Security from "./pages/Security";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Waitlist from "./pages/Waitlist";
 import { AuthProvider } from "./lib/auth";
 
 export default function App() {
@@ -17,6 +23,12 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/" element={<Layout><Home /></Layout>} />
+          <Route path="/features" element={<Layout><Features /></Layout>} />
+          <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+          <Route path="/security" element={<Layout><Security /></Layout>} />
+          <Route path="/about" element={<Layout><About /></Layout>} />
+          <Route path="/contact" element={<Layout><Contact /></Layout>} />
+          <Route path="/waitlist" element={<Layout><Waitlist /></Layout>} />
           <Route path="*" element={<Layout><Home /></Layout>} />
         </Routes>
       </BrowserRouter>
