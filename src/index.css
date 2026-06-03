@@ -112,6 +112,12 @@ body {
 /* Back-compat: existing app pages use bg-gold-grad */
 .bg-gold-grad { background: linear-gradient(135deg, #F5E09A 0%, #C9A84C 45%, #8a6a2e 100%); }
 
+/* Orbit keyframe (used inline for the FX globe currencies) */
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(var(--r)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--r)) rotate(-360deg); }
+}
+
 /* ----- Titanium card sheen ----- */
 .titanium {
   background:
