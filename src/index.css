@@ -109,6 +109,9 @@ body {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Back-compat: existing app pages use bg-gold-grad */
+.bg-gold-grad { background: linear-gradient(135deg, #F5E09A 0%, #C9A84C 45%, #8a6a2e 100%); }
+
 /* ----- Titanium card sheen ----- */
 .titanium {
   background:
