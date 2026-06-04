@@ -4,7 +4,7 @@ import { motion, useInView, useScroll, useTransform, AnimatePresence } from "fra
 import {
   ArrowRight, ArrowUpRight, ShieldCheck, Zap, Globe2, Bot, Coins, Bitcoin,
   Sparkles, Send, CircleDollarSign, TrendingUp, CheckCircle2, Plus, Minus,
-  Star, Lock, Fingerprint, Cpu, Wallet, Smartphone, Twitter, Linkedin, Instagram,
+  Star, Lock, Fingerprint, Cpu, Wallet, Smartphone, Instagram,
   Menu, X,
 } from "lucide-react";
 import { track } from "./lib/analytics";
