@@ -832,9 +832,7 @@ export const Footer = () => (
             <button className="rounded-full bg-snow px-4 py-2.5 text-sm font-medium text-ink hover:bg-white">Subscribe</button>
           </form>
           <div className="mt-6 flex gap-3 text-silver">
-            <a href="#" aria-label="Twitter" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Twitter className="h-4 w-4" /></a>
-            <a href="#" aria-label="LinkedIn" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Linkedin className="h-4 w-4" /></a>
-            <a href="#" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>
+            <a href="https://www.instagram.com/shoho_pay" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>
           </div>
         </div>
         {footerCols.map((c)=>(
