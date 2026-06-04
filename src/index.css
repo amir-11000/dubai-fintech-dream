@@ -134,3 +134,106 @@ body {
   background-image: radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px);
   background-size: 22px 22px;
 }
+
+/* =========================================================
+   ARABIC / RTL LUXURY THEME (white · gold · black)
+   Applied via <body class="theme-ar">. Scopes only color tokens
+   and adds Arabic typography + geometric pattern so the entire
+   English design system inverts to a luxury UAE palette without
+   per-component rewrites.
+========================================================= */
+body.theme-ar {
+  --bg-primary: #FBF8F1;
+  --bg-secondary: #F4EEDF;
+  --bg-tertiary: #EAE1C8;
+  --accent-blue: #C9A84C;        /* swap blue accent → gold */
+  --accent-blue-glow: rgba(201,168,76,0.25);
+  --accent-gold: #8A6A2E;
+  --accent-gold-glow: rgba(138,106,46,0.22);
+  --text-primary: #0B0B0C;
+  --text-secondary: #44423C;
+  --text-tertiary: #8C8775;
+  --glass-bg: rgba(255,255,255,0.55);
+  --glass-border: rgba(11,11,12,0.08);
+
+  color-scheme: light;
+  font-family: "Tajawal", "Amiri", "Inter", system-ui, sans-serif;
+
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,168,76,0.18), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 20%, rgba(138,106,46,0.10), transparent 60%),
+    #FBF8F1;
+  color: #0B0B0C;
+}
+
+/* Arabic geometric backdrop — subtle 8-point star tile */
+body.theme-ar::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='%238a6a2e' stroke-width='1'><polygon points='40,4 48,32 76,32 53,49 62,76 40,60 18,76 27,49 4,32 32,32'/><circle cx='40' cy='40' r='12'/></g></svg>");
+  background-size: 120px 120px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+body.theme-ar .font-display {
+  font-family: "Amiri", "Tajawal", "Space Grotesk", serif;
+  letter-spacing: 0;
+}
+
+/* Re-tone the brand "snow/silver/ink/glow/gold" Tailwind utilities
+   for the Arabic theme so existing components automatically adapt. */
+body.theme-ar .text-snow,
+body.theme-ar .text-white { color: #0B0B0C !important; }
+body.theme-ar .text-silver,
+body.theme-ar .text-silver\/70,
+body.theme-ar .text-silver\/80 { color: #44423C !important; }
+body.theme-ar .text-silver\/50,
+body.theme-ar .text-silver\/60,
+body.theme-ar .text-silver\/40 { color: #8C8775 !important; }
+body.theme-ar .text-glow,
+body.theme-ar .text-gold { color: #8A6A2E !important; }
+body.theme-ar .bg-ink,
+body.theme-ar .bg-ink\/70,
+body.theme-ar .bg-ink\/95 { background-color: rgba(251,248,241,0.85) !important; }
+body.theme-ar .bg-glow {
+  background: linear-gradient(135deg,#C9A84C,#8A6A2E) !important;
+  color: #0B0B0C !important;
+}
+body.theme-ar .bg-snow { background-color: #0B0B0C !important; color: #FBF8F1 !important; }
+body.theme-ar .text-gradient-silver,
+body.theme-ar .text-gradient-blue {
+  background: linear-gradient(135deg,#0B0B0C 0%, #44423C 100%) !important;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body.theme-ar .text-gradient-gold {
+  background: linear-gradient(135deg,#8A6A2E,#C9A84C 50%,#F5E09A) !important;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body.theme-ar .glass,
+body.theme-ar .glass-strong,
+body.theme-ar .glass-card {
+  background: rgba(255,255,255,0.65) !important;
+  border-color: rgba(11,11,12,0.08) !important;
+}
+body.theme-ar .hairline { border-color: rgba(11,11,12,0.10) !important; }
+body.theme-ar .border-white\/\[0\.06\],
+body.theme-ar .border-white\/10,
+body.theme-ar .border-white\/20 { border-color: rgba(11,11,12,0.10) !important; }
+body.theme-ar .bg-white\/\[0\.04\],
+body.theme-ar .bg-white\/\[0\.06\],
+body.theme-ar .bg-white\/5,
+body.theme-ar .bg-white\/10 { background-color: rgba(11,11,12,0.04) !important; }
+
+/* Flip lucide chevrons & arrows for RTL */
+html[dir="rtl"] .lucide-arrow-right,
+html[dir="rtl"] .lucide-arrow-up-right,
+html[dir="rtl"] .lucide-chevron-right { transform: scaleX(-1); }
+
