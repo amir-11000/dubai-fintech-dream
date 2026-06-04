@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   Users, MessageSquare, Activity, LogOut, Search, Download, ShieldCheck,
   CheckCircle2, Ban, Mail, Phone, ArrowLeft, Eye, EyeOff, Mailbox, Trash2,
+  Briefcase, UserPlus, FileText, ExternalLink,
 } from "lucide-react";
 
 type Profile = {
@@ -21,6 +22,31 @@ type Waitlist = {
   id: string; email: string; source: string | null; country: string | null;
   ip_address: string | null; user_agent: string | null; created_at: string;
 };
+type Application = {
+  id: string; position_id: string | null; position_title: string;
+  first_name: string; last_name: string; email: string; phone: string; country: string;
+  linkedin_url: string | null; portfolio_url: string | null; github_url: string | null;
+  current_company: string | null; cover_letter: string | null;
+  cv_path: string | null; portfolio_path: string | null; supporting_path: string | null;
+  status: string; admin_notes: string | null; created_at: string;
+};
+type TalentEntry = {
+  id: string; first_name: string; last_name: string; email: string; phone: string | null;
+  country: string; area_of_interest: string | null; linkedin_url: string | null;
+  portfolio_url: string | null; cv_path: string | null; message: string | null;
+  status: string; created_at: string;
+};
+
+const APP_STATUSES = ["new", "under_review", "interview", "shortlisted", "rejected", "hired"] as const;
+const statusLabel = (s: string) => ({ new: "New", under_review: "Under Review", interview: "Interview", shortlisted: "Shortlisted", rejected: "Rejected", hired: "Hired" } as Record<string, string>)[s] || s;
+const statusColor = (s: string) => ({
+  new: "bg-glow/15 text-glow",
+  under_review: "bg-amber-500/15 text-amber-300",
+  interview: "bg-violet-500/15 text-violet-300",
+  shortlisted: "bg-emerald-500/15 text-emerald-300",
+  rejected: "bg-red-500/15 text-red-300",
+  hired: "bg-gold/15 text-gold",
+} as Record<string, string>)[s] || "bg-white/5 text-silver/60";
 
 const fmtDate = (s: string | null) => s ? new Date(s).toLocaleString() : "—";
 const fmtShort = (s: string | null) => s ? new Date(s).toLocaleDateString() : "—";
