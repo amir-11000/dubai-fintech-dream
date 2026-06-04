@@ -7,7 +7,7 @@ export default function Waitlist() {
     <>
       <Seo
         title="Join the Waitlist — Shoho Pay | Early Access in the UAE"
-        description="Be among the first 50,000+ on the Shoho Pay waitlist. The UAE's luxury wallet — payments, crypto, gold and Billy, your AI accountant."
+        description="Join the Shoho Pay waitlist. The UAE's luxury wallet — payments, crypto, gold and Billy, your AI accountant."
         path="/waitlist"
         jsonLd={breadcrumb([{ name: "Home", path: "/" }, { name: "Waitlist", path: "/waitlist" }])}
       />
