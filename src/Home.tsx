@@ -918,51 +918,51 @@ const FinalCTA = () => (
 /* =========================================================
    FOOTER
 ========================================================= */
-const footerCols = [
-  { t: "Product", links: [["Features","/features"], ["Pricing","/pricing"], ["Security","/security"], ["Waitlist","/waitlist"]] as const },
-  { t: "Company", links: [["About","/about"], ["Careers","/careers"], ["Contact","/contact"]] as const },
-  { t: "Legal",   links: [["Privacy","/contact"], ["Terms","/contact"], ["Compliance","/security"]] as const },
+const footerColDefs = [
+  { titleKey: "footer.product", links: [["nav.features","/features"], ["nav.pricing","/pricing"], ["nav.security","/security"], ["footer.waitlist","/waitlist"]] as const },
+  { titleKey: "footer.company", links: [["nav.about","/about"], ["nav.careers","/careers"], ["nav.contact","/contact"]] as const },
+  { titleKey: "footer.legal",   links: [["footer.privacy","/contact"], ["footer.terms","/contact"], ["footer.compliance","/security"]] as const },
 ];
 
-export const Footer = () => (
-  <footer className="relative border-t border-white/[0.06] py-16">
-    <Container>
-      <div className="grid gap-12 md:grid-cols-5">
-        <div className="md:col-span-2">
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Shoho Pay" className="h-9 w-9 rounded-lg object-contain" />
-            <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
+export const Footer = () => {
+  const { t } = useI18n();
+  return (
+    <footer className="relative border-t border-white/[0.06] py-16">
+      <Container>
+        <div className="grid gap-12 md:grid-cols-5">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.png" alt="Shoho Pay" className="h-9 w-9 rounded-lg object-contain" />
+              <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
+            </div>
+            <p className="mt-5 max-w-sm text-sm text-silver/70">{t("footer.tagline")}</p>
+            <form onSubmit={(e)=>e.preventDefault()} className="mt-6 flex max-w-sm gap-2">
+              <input type="email" placeholder={t("footer.newsletter_placeholder")} className="flex-1 rounded-full bg-white/[0.04] px-4 py-2.5 text-sm text-snow outline-none hairline placeholder:text-silver/40 focus:ring-2 focus:ring-glow/40" />
+              <button className="rounded-full bg-snow px-4 py-2.5 text-sm font-medium text-ink hover:bg-white">{t("footer.subscribe")}</button>
+            </form>
+            <div className="mt-6 flex gap-3 text-silver">
+              <a href="https://www.instagram.com/shoho_pay" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>
+            </div>
           </div>
-          <p className="mt-5 max-w-sm text-sm text-silver/70">The luxury wallet of the UAE — payments, crypto, gold and Billy, your AI accountant. Built in Dubai.</p>
-          <form onSubmit={(e)=>e.preventDefault()} className="mt-6 flex max-w-sm gap-2">
-            <input type="email" placeholder="Newsletter email" className="flex-1 rounded-full bg-white/[0.04] px-4 py-2.5 text-sm text-snow outline-none hairline placeholder:text-silver/40 focus:ring-2 focus:ring-glow/40" />
-            <button className="rounded-full bg-snow px-4 py-2.5 text-sm font-medium text-ink hover:bg-white">Subscribe</button>
-          </form>
-          <div className="mt-6 flex gap-3 text-silver">
-            <a href="https://www.instagram.com/shoho_pay" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>
-          </div>
+          {footerColDefs.map((c)=>(
+            <div key={c.titleKey}>
+              <div className="text-[11px] uppercase tracking-[0.2em] text-silver/50">{t(c.titleKey)}</div>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                {c.links.map(([labelKey,h])=>(
+                  <li key={labelKey}><Link to={h} className="text-silver hover:text-snow">{t(labelKey)}</Link></li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-        {footerCols.map((c)=>(
-          <div key={c.t}>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-silver/50">{c.t}</div>
-            <ul className="mt-4 space-y-2.5 text-sm">
-              {c.links.map(([l,h])=>(
-                <li key={l}><Link to={h} className="text-silver hover:text-snow">{l}</Link></li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-silver/60 md:flex-row md:items-center">
-        <div>© {new Date().getFullYear()} Shoho Pay. Aligned with UAE Central Bank guidelines · DIFC registered.</div>
-        <div className="flex items-center gap-3">
-          <button className="rounded-full glass px-3 py-1 hover:text-snow">EN</button>
-          <button className="rounded-full px-3 py-1 hover:text-snow">عربي</button>
+        <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-silver/60 md:flex-row md:items-center">
+          <div>{t("footer.copyright", { year: new Date().getFullYear() })}</div>
+          <LanguageSwitcher />
         </div>
-      </div>
-    </Container>
-  </footer>
-);
+      </Container>
+    </footer>
+  );
+};
 
 /* =========================================================
    HOME
