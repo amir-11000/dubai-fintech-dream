@@ -869,7 +869,7 @@ export default function Home() {
       <Features />
       <AISection />
       <FXSection />
-      <Stats />
+      
       <GoldSection />
       <SecuritySection />
       <Testimonials />
