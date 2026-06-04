@@ -5,7 +5,7 @@ import { useAuth } from "../lib/auth";
 import { toast } from "sonner";
 import {
   Users, MessageSquare, Activity, LogOut, Search, Download, ShieldCheck,
-  CheckCircle2, Ban, Mail, Phone, ArrowLeft, Eye, EyeOff,
+  CheckCircle2, Ban, Mail, Phone, ArrowLeft, Eye, EyeOff, Mailbox, Trash2,
 } from "lucide-react";
 
 type Profile = {
@@ -17,6 +17,10 @@ type Msg = {
   status: string; created_at: string;
 };
 type Role = { user_id: string; role: string };
+type Waitlist = {
+  id: string; email: string; source: string | null; country: string | null;
+  ip_address: string | null; user_agent: string | null; created_at: string;
+};
 
 const fmtDate = (s: string | null) => s ? new Date(s).toLocaleString() : "—";
 const fmtShort = (s: string | null) => s ? new Date(s).toLocaleDateString() : "—";
@@ -42,10 +46,12 @@ const download = (filename: string, content: string) => {
 export default function Admin() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const nav = useNavigate();
-  const [tab, setTab] = useState<"overview" | "users" | "messages">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "messages" | "waitlist">("overview");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [waitlist, setWaitlist] = useState<Waitlist[]>([]);
+  const [waitSearch, setWaitSearch] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "blocked">("all");
   const [busy, setBusy] = useState(false);
@@ -59,14 +65,16 @@ export default function Admin() {
 
   const refresh = async () => {
     setBusy(true);
-    const [{ data: p }, { data: m }, { data: r }] = await Promise.all([
+    const [{ data: p }, { data: m }, { data: r }, { data: w }] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role"),
+      supabase.from("waitlist").select("*").order("created_at", { ascending: false }),
     ]);
     setProfiles((p as Profile[]) || []);
     setMessages((m as Msg[]) || []);
     setRoles((r as Role[]) || []);
+    setWaitlist((w as Waitlist[]) || []);
     setBusy(false);
   };
 
@@ -169,6 +177,7 @@ export default function Admin() {
             { k: "overview", l: "Overview", i: Activity },
             { k: "users", l: `Users (${stats.total})`, i: Users },
             { k: "messages", l: `Messages (${stats.unread} new)`, i: MessageSquare },
+            { k: "waitlist", l: `Waitlist (${waitlist.length})`, i: Mailbox },
           ].map(t => (
             <button
               key={t.k}
