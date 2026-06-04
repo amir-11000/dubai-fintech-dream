@@ -242,7 +242,7 @@ const Hero = () => (
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link to="/waitlist" onClick={() => track("cta_click", { button_label: "hero_waitlist" })} className="group inline-flex items-center justify-center gap-2 rounded-full bg-glow px-6 py-4 text-sm font-medium text-white shadow-[0_14px_40px_-10px_rgba(45,127,255,0.7)] transition hover:bg-glow/90">
-            Join 50,000+ on the Waitlist <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            Join the Waitlist <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </Link>
           <a href="#demo" onClick={() => track("cta_click", { button_label: "hero_demo" })} className="inline-flex items-center justify-center gap-2 rounded-full glass px-6 py-4 text-sm text-snow hover:bg-white/10">
             Watch the Demo <ArrowUpRight className="h-4 w-4" />
