@@ -341,6 +341,84 @@ export default function Admin() {
             </div>
           </div>
         )}
+
+        {tab === "waitlist" && (() => {
+          const q = waitSearch.trim().toLowerCase();
+          const filtered = waitlist.filter(w => !q || w.email.toLowerCase().includes(q) || (w.country || "").toLowerCase().includes(q) || (w.source || "").toLowerCase().includes(q));
+          const exportWait = () => {
+            const rows = filtered.map(w => ({
+              email: w.email,
+              created_at: w.created_at,
+              source: w.source || "",
+              country: w.country || "",
+              ip_address: w.ip_address || "",
+              user_agent: w.user_agent || "",
+            }));
+            download(`shoho-waitlist-${Date.now()}.csv`, toCSV(rows));
+          };
+          const removeWait = async (id: string, email: string) => {
+            if (!confirm(`Delete waitlist entry for ${email}?`)) return;
+            const { error } = await supabase.from("waitlist").delete().eq("id", id);
+            if (error) { toast.error(error.message); return; }
+            await logAction("delete_waitlist", id, { email });
+            setWaitlist(prev => prev.filter(x => x.id !== id));
+            toast.success("Waitlist entry removed");
+          };
+          const today = waitlist.filter(w => Date.now() - new Date(w.created_at).getTime() < 86400000).length;
+          const week = waitlist.filter(w => Date.now() - new Date(w.created_at).getTime() < 7 * 86400000).length;
+          return (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <Stat label="Total signups" value={waitlist.length} accent="glow" />
+                <Stat label="Today" value={today} />
+                <Stat label="This week" value={week} />
+                <Stat label="Unique domains" value={new Set(waitlist.map(w => w.email.split("@")[1])).size} accent="gold" />
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-silver/40" />
+                  <input value={waitSearch} onChange={e => setWaitSearch(e.target.value)} placeholder="Search email, country, source…" className="w-full rounded-full bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white outline-none placeholder:text-silver/30 hairline focus:ring-2 focus:ring-glow/40" />
+                </div>
+                <button onClick={exportWait} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-medium text-ink hover:bg-white/90">
+                  <Download className="h-3.5 w-3.5" /> Export CSV
+                </button>
+              </div>
+              <Panel padded={false}>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="border-b border-white/5 text-left text-[11px] uppercase tracking-wider text-silver/50">
+                      <tr>
+                        <th className="px-4 py-3">Email</th>
+                        <th className="px-4 py-3">Source</th>
+                        <th className="px-4 py-3">Country</th>
+                        <th className="px-4 py-3">Joined</th>
+                        <th className="px-4 py-3 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {filtered.map(w => (
+                        <tr key={w.id} className="hover:bg-white/[0.02]">
+                          <td className="px-4 py-3 font-medium text-white">{w.email}</td>
+                          <td className="px-4 py-3 text-xs text-silver/60">{w.source || "—"}</td>
+                          <td className="px-4 py-3 text-xs text-silver/60">{w.country || "—"}</td>
+                          <td className="px-4 py-3 text-xs text-silver/60">{fmtDate(w.created_at)}</td>
+                          <td className="px-4 py-3 text-right">
+                            <button onClick={() => removeWait(w.id, w.email)} className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/20">
+                              <Trash2 className="h-3 w-3" /> Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {!filtered.length && (
+                        <tr><td colSpan={5} className="py-12 text-center text-sm text-silver/40">{busy ? "Loading…" : "No waitlist entries yet"}</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </Panel>
+            </div>
+          );
+        })()}
       </main>
     </div>
   );
