@@ -42,7 +42,7 @@ export default function Security() {
           {pillars.map((p) => (
             <article key={p.t} className="h-full rounded-3xl glass-card p-7">
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-glow/10 text-glow"><p.i className="h-5 w-5" /></div>
-              <h3 className="font-display mt-5 text-lg font-semibold text-snow">{p.t}</h3>
+              <h2 className="font-display mt-5 text-lg font-semibold text-snow">{p.t}</h2>
               <p className="mt-2 text-sm leading-relaxed text-silver/75">{p.d}</p>
             </article>
           ))}

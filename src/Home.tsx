@@ -937,8 +937,8 @@ export const Footer = () => {
             </div>
             <p className="mt-5 max-w-sm text-sm text-silver/70">{t("footer.tagline")}</p>
             <form onSubmit={(e)=>e.preventDefault()} className="mt-6 flex max-w-sm gap-2">
-              <input type="email" placeholder={t("footer.newsletter_placeholder")} className="flex-1 rounded-full bg-white/[0.04] px-4 py-2.5 text-sm text-snow outline-none hairline placeholder:text-silver/40 focus:ring-2 focus:ring-glow/40" />
-              <button className="rounded-full bg-snow px-4 py-2.5 text-sm font-medium text-ink hover:bg-white">{t("footer.subscribe")}</button>
+              <input type="email" aria-label={t("footer.newsletter_placeholder")} placeholder={t("footer.newsletter_placeholder")} className="flex-1 rounded-full bg-white/[0.04] px-4 py-2.5 text-sm text-snow outline-none hairline placeholder:text-silver/40 focus:ring-2 focus:ring-glow/40" />
+              <button type="button" className="rounded-full bg-snow px-4 py-2.5 text-sm font-medium text-ink hover:bg-white">{t("footer.subscribe")}</button>
             </form>
             <div className="mt-6 flex gap-3 text-silver">
               <a href="https://www.instagram.com/shoho_pay" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>

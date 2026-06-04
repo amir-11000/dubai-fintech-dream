@@ -102,7 +102,7 @@ export default function TalentPool() {
             {done ? (
               <div className="text-center">
                 <CheckCircle2 className="mx-auto h-10 w-10 text-glow" />
-                <h3 className="font-display mt-3 text-2xl font-semibold text-white">You're in</h3>
+                <h2 className="font-display mt-3 text-2xl font-semibold text-white">You're in</h2>
                 <p className="mt-2 text-sm text-silver/70">Thanks for sharing your profile. We'll reach out when a fit opens up.</p>
               </div>
             ) : (
@@ -113,15 +113,17 @@ export default function TalentPool() {
                 </div>
                 <Field label="Email" type="email" required value={email} onChange={setEmail} placeholder="you@example.com" />
                 <div>
-                  <label className="mb-1.5 block text-xs uppercase tracking-wider text-silver/60">Phone (optional)</label>
+                  <label htmlFor="talent-phone" className="mb-1.5 block text-xs uppercase tracking-wider text-silver/60">Phone (optional)</label>
                   <div className="flex overflow-hidden rounded-xl hairline bg-white/[0.04] focus-within:ring-2 focus-within:ring-glow/40">
                     <CountrySelect value={country} onChange={setCountry} />
                     <input
+                      id="talent-phone"
                       type="tel"
                       inputMode="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="50 123 4567"
+                      aria-label="Phone number"
                       className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-silver/30"
                     />
                   </div>
