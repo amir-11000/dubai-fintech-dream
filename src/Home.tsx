@@ -8,6 +8,8 @@ import {
   Menu, X,
 } from "lucide-react";
 import { track } from "./lib/analytics";
+import { useI18n } from "./lib/i18n";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 
 /* =========================================================
    PRIMITIVES
@@ -44,16 +46,18 @@ const Reveal = ({ children, delay = 0, className = "" }: { children: ReactNode; 
 /* =========================================================
    NAV
 ========================================================= */
-const navLinks = [
-  { to: "/features", label: "Features" },
-  { to: "/pricing", label: "Pricing" },
-  { to: "/security", label: "Security" },
-  { to: "/careers", label: "Careers" },
-  { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
+const navLinkDefs = [
+  { to: "/features", key: "nav.features" },
+  { to: "/pricing",  key: "nav.pricing" },
+  { to: "/security", key: "nav.security" },
+  { to: "/careers",  key: "nav.careers" },
+  { to: "/about",    key: "nav.about" },
+  { to: "/contact",  key: "nav.contact" },
 ];
 
 export const Nav = () => {
+  const { t } = useI18n();
+  const navLinks = navLinkDefs.map((l) => ({ to: l.to, label: t(l.key) }));
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
