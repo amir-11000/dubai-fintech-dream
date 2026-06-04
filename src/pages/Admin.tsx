@@ -502,3 +502,282 @@ const Panel = ({ title, children, padded = true }: { title?: string; children: R
     {children}
   </section>
 );
+
+/* ============================================================
+   CAREERS TAB — applications list, filters, status, CV download
+============================================================ */
+function CareersTab({
+  applications, setApplications, search, setSearch,
+  statusFilter, setStatusFilter, positionFilter, setPositionFilter,
+  countryFilter, setCountryFilter, logAction,
+}: {
+  applications: Application[];
+  setApplications: React.Dispatch<React.SetStateAction<Application[]>>;
+  search: string; setSearch: (s: string) => void;
+  statusFilter: string; setStatusFilter: (s: string) => void;
+  positionFilter: string; setPositionFilter: (s: string) => void;
+  countryFilter: string; setCountryFilter: (s: string) => void;
+  logAction: (action: string, target: string | null, metadata?: any) => Promise<void>;
+}) {
+  const positions = Array.from(new Set(applications.map(a => a.position_title))).sort();
+  const countries = Array.from(new Set(applications.map(a => a.country))).sort();
+
+  const filtered = applications.filter(a => {
+    if (statusFilter !== "all" && a.status !== statusFilter) return false;
+    if (positionFilter !== "all" && a.position_title !== positionFilter) return false;
+    if (countryFilter !== "all" && a.country !== countryFilter) return false;
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return [a.first_name, a.last_name, a.email, a.phone, a.position_title, a.current_company, a.country]
+      .some(v => v?.toLowerCase().includes(q));
+  });
+
+  const changeStatus = async (id: string, status: string) => {
+    const { error } = await (supabase as any).from("job_applications").update({ status }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    setApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+    await logAction("application_status", id, { status });
+    toast.success(`Marked ${statusLabel(status)}`);
+  };
+
+  const saveNotes = async (id: string, notes: string) => {
+    const { error } = await (supabase as any).from("job_applications").update({ admin_notes: notes }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    setApplications(prev => prev.map(a => a.id === id ? { ...a, admin_notes: notes } : a));
+    toast.success("Notes saved");
+  };
+
+  const downloadFile = async (path: string | null) => {
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("applications").createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) { toast.error(error?.message || "Could not generate download link"); return; }
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+
+  const removeApp = async (id: string) => {
+    if (!confirm("Delete this application?")) return;
+    const { error } = await (supabase as any).from("job_applications").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    setApplications(prev => prev.filter(a => a.id !== id));
+    await logAction("delete_application", id);
+    toast.success("Deleted");
+  };
+
+  const exportCSV = () => {
+    const rows = filtered.map(a => ({
+      name: `${a.first_name} ${a.last_name}`,
+      email: a.email, phone: a.phone, country: a.country,
+      position: a.position_title, status: a.status,
+      current_company: a.current_company || "",
+      linkedin: a.linkedin_url || "", portfolio: a.portfolio_url || "", github: a.github_url || "",
+      created_at: a.created_at,
+    }));
+    download(`shoho-applications-${Date.now()}.csv`, toCSV(rows));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
+        <Stat label="Total" value={applications.length} accent="glow" />
+        {APP_STATUSES.map(s => (
+          <Stat key={s} label={statusLabel(s)} value={applications.filter(a => a.status === s).length} />
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-silver/40" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email, position, company…" className="w-full rounded-full bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white outline-none placeholder:text-silver/30 hairline focus:ring-2 focus:ring-glow/40" />
+        </div>
+        <Select value={statusFilter} onChange={setStatusFilter} options={[["all","All statuses"], ...APP_STATUSES.map(s => [s, statusLabel(s)] as [string, string])]} />
+        <Select value={positionFilter} onChange={setPositionFilter} options={[["all","All positions"], ...positions.map(p => [p, p] as [string, string])]} />
+        <Select value={countryFilter} onChange={setCountryFilter} options={[["all","All countries"], ...countries.map(c => [c, c] as [string, string])]} />
+        <button onClick={exportCSV} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-medium text-ink hover:bg-white/90">
+          <Download className="h-3.5 w-3.5" /> Export CSV
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {filtered.map(a => (
+          <ApplicationCard key={a.id} app={a} onStatus={changeStatus} onNotes={saveNotes} onDownload={downloadFile} onDelete={removeApp} />
+        ))}
+        {!filtered.length && (
+          <Panel><div className="py-10 text-center text-sm text-silver/40">No applications match</div></Panel>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Select({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: [string, string][] }) {
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)} className="rounded-full bg-white/[0.04] px-4 py-2.5 text-xs text-white outline-none hairline focus:ring-2 focus:ring-glow/40">
+      {options.map(([v, l]) => <option key={v} value={v} className="bg-ink">{l}</option>)}
+    </select>
+  );
+}
+
+function ApplicationCard({ app, onStatus, onNotes, onDownload, onDelete }: {
+  app: Application;
+  onStatus: (id: string, status: string) => void;
+  onNotes: (id: string, notes: string) => void;
+  onDownload: (path: string | null) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [notes, setNotes] = useState(app.admin_notes || "");
+
+  return (
+    <Panel>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-medium text-white">{app.first_name} {app.last_name}</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider ${statusColor(app.status)}`}>{statusLabel(app.status)}</span>
+            <span className="text-[11px] text-silver/40">{fmtDate(app.created_at)}</span>
+          </div>
+          <div className="mt-1 text-xs text-silver/70">
+            <span className="font-medium text-white/80">{app.position_title}</span> · {app.country}
+            {app.current_company && <> · {app.current_company}</>}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-silver/60">
+            <a href={`mailto:${app.email}`} className="inline-flex items-center gap-1.5 hover:text-white"><Mail className="h-3 w-3" /> {app.email}</a>
+            <a href={`tel:${app.phone}`} className="inline-flex items-center gap-1.5 hover:text-white"><Phone className="h-3 w-3" /> {app.phone}</a>
+            {app.linkedin_url && <a href={app.linkedin_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">LinkedIn <ExternalLink className="h-3 w-3" /></a>}
+            {app.portfolio_url && <a href={app.portfolio_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">Portfolio <ExternalLink className="h-3 w-3" /></a>}
+            {app.github_url && <a href={app.github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">GitHub <ExternalLink className="h-3 w-3" /></a>}
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <select value={app.status} onChange={e => onStatus(app.id, e.target.value)} className="rounded-full bg-white/[0.04] px-3 py-1.5 text-xs text-white outline-none hairline focus:ring-2 focus:ring-glow/40">
+            {APP_STATUSES.map(s => <option key={s} value={s} className="bg-ink">{statusLabel(s)}</option>)}
+          </select>
+          <button onClick={() => setOpen(o => !o)} className="rounded-full bg-white/5 px-3 py-1.5 text-xs text-silver/80 hover:bg-white/10">
+            {open ? "Hide" : "Details"}
+          </button>
+          <button onClick={() => onDelete(app.id)} className="grid h-8 w-8 place-items-center rounded-full bg-red-500/10 text-red-300 hover:bg-red-500/20" aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
+        </div>
+      </div>
+
+      {open && (
+        <div className="mt-4 space-y-4 border-t border-white/5 pt-4">
+          {app.cover_letter && (
+            <div>
+              <div className="mb-1 text-[10px] uppercase tracking-wider text-silver/50">Cover letter</div>
+              <p className="whitespace-pre-wrap text-sm text-silver/80">{app.cover_letter}</p>
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {app.cv_path && <button onClick={() => onDownload(app.cv_path)} className="inline-flex items-center gap-1.5 rounded-full bg-glow/15 px-3 py-1.5 text-xs text-glow hover:bg-glow/25"><FileText className="h-3.5 w-3.5" /> Download CV</button>}
+            {app.portfolio_path && <button onClick={() => onDownload(app.portfolio_path)} className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-xs text-silver/80 hover:bg-white/10"><FileText className="h-3.5 w-3.5" /> Portfolio</button>}
+            {app.supporting_path && <button onClick={() => onDownload(app.supporting_path)} className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-xs text-silver/80 hover:bg-white/10"><FileText className="h-3.5 w-3.5" /> Supporting</button>}
+          </div>
+          <div>
+            <div className="mb-1 text-[10px] uppercase tracking-wider text-silver/50">Internal notes</div>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="w-full resize-y rounded-xl hairline bg-white/[0.04] px-3 py-2 text-sm text-white outline-none placeholder:text-silver/30 focus:ring-2 focus:ring-glow/40" placeholder="Notes about this candidate…" />
+            <button onClick={() => onNotes(app.id, notes)} className="mt-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-ink hover:bg-white/90">Save notes</button>
+          </div>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
+/* ============================================================
+   TALENT POOL TAB
+============================================================ */
+function TalentTab({ entries, setEntries, search, setSearch, logAction }: {
+  entries: TalentEntry[];
+  setEntries: React.Dispatch<React.SetStateAction<TalentEntry[]>>;
+  search: string; setSearch: (s: string) => void;
+  logAction: (action: string, target: string | null, metadata?: any) => Promise<void>;
+}) {
+  const q = search.trim().toLowerCase();
+  const filtered = entries.filter(t => !q || [t.first_name, t.last_name, t.email, t.country, t.area_of_interest, t.message]
+    .some(v => v?.toLowerCase().includes(q)));
+
+  const downloadFile = async (path: string | null) => {
+    if (!path) return;
+    const { data, error } = await supabase.storage.from("applications").createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) { toast.error(error?.message || "Could not generate download link"); return; }
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Delete this talent pool entry?")) return;
+    const { error } = await (supabase as any).from("talent_pool").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    setEntries(prev => prev.filter(e => e.id !== id));
+    await logAction("delete_talent", id);
+    toast.success("Deleted");
+  };
+
+  const exportCSV = () => {
+    const rows = filtered.map(t => ({
+      name: `${t.first_name} ${t.last_name}`,
+      email: t.email, phone: t.phone || "", country: t.country,
+      area: t.area_of_interest || "", linkedin: t.linkedin_url || "", portfolio: t.portfolio_url || "",
+      message: t.message || "", created_at: t.created_at,
+    }));
+    download(`shoho-talent-${Date.now()}.csv`, toCSV(rows));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-silver/40" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email, area…" className="w-full rounded-full bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white outline-none placeholder:text-silver/30 hairline focus:ring-2 focus:ring-glow/40" />
+        </div>
+        <button onClick={exportCSV} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-medium text-ink hover:bg-white/90">
+          <Download className="h-3.5 w-3.5" /> Export CSV
+        </button>
+      </div>
+
+      <Panel padded={false}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-white/5 text-left text-[11px] uppercase tracking-wider text-silver/50">
+              <tr>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Contact</th>
+                <th className="px-4 py-3">Country</th>
+                <th className="px-4 py-3">Interest</th>
+                <th className="px-4 py-3">CV</th>
+                <th className="px-4 py-3">Joined</th>
+                <th className="px-4 py-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {filtered.map(t => (
+                <tr key={t.id} className="hover:bg-white/[0.02]">
+                  <td className="px-4 py-3 font-medium text-white">{t.first_name} {t.last_name}</td>
+                  <td className="px-4 py-3 text-xs text-silver/70">
+                    <div>{t.email}</div>
+                    {t.phone && <div className="text-silver/50">{t.phone}</div>}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-silver/70">{t.country}</td>
+                  <td className="px-4 py-3 text-xs text-silver/70">{t.area_of_interest || "—"}</td>
+                  <td className="px-4 py-3">
+                    {t.cv_path
+                      ? <button onClick={() => downloadFile(t.cv_path)} className="inline-flex items-center gap-1.5 rounded-full bg-glow/15 px-2.5 py-1 text-[11px] text-glow hover:bg-glow/25"><FileText className="h-3 w-3" /> Download</button>
+                      : <span className="text-xs text-silver/40">—</span>}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-silver/60">{fmtDate(t.created_at)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button onClick={() => remove(t.id)} className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/20">
+                      <Trash2 className="h-3 w-3" /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {!filtered.length && (
+                <tr><td colSpan={7} className="py-12 text-center text-sm text-silver/40">No talent pool entries yet</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+    </div>
+  );
+}
