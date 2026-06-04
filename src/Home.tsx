@@ -641,7 +641,7 @@ const quotes = [
 const Testimonials = () => (
   <section className="relative py-24 md:py-32">
     <Container>
-      <SectionHead eyebrow="Loved by the UAE" title={<>4.9 / 5 from <span className="text-gradient-blue">2,400+ reviews.</span></>} />
+      <SectionHead eyebrow="Loved by the UAE" title={<>Built for how the <span className="text-gradient-blue">UAE moves money.</span></>} />
       <div className="mt-14 grid gap-5 md:grid-cols-3">
         {quotes.map((q, i) => (
           <Reveal key={q.n} delay={i * 0.08}>
