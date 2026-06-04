@@ -71,6 +71,161 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          admin_notes: string | null
+          country: string
+          cover_letter: string | null
+          created_at: string
+          current_company: string | null
+          cv_path: string | null
+          email: string
+          first_name: string
+          github_url: string | null
+          id: string
+          ip_address: string | null
+          last_name: string
+          linkedin_url: string | null
+          phone: string
+          portfolio_path: string | null
+          portfolio_url: string | null
+          position_id: string | null
+          position_title: string
+          source: string | null
+          status: string
+          supporting_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          country: string
+          cover_letter?: string | null
+          created_at?: string
+          current_company?: string | null
+          cv_path?: string | null
+          email: string
+          first_name: string
+          github_url?: string | null
+          id?: string
+          ip_address?: string | null
+          last_name: string
+          linkedin_url?: string | null
+          phone: string
+          portfolio_path?: string | null
+          portfolio_url?: string | null
+          position_id?: string | null
+          position_title: string
+          source?: string | null
+          status?: string
+          supporting_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          country?: string
+          cover_letter?: string | null
+          created_at?: string
+          current_company?: string | null
+          cv_path?: string | null
+          email?: string
+          first_name?: string
+          github_url?: string | null
+          id?: string
+          ip_address?: string | null
+          last_name?: string
+          linkedin_url?: string | null
+          phone?: string
+          portfolio_path?: string | null
+          portfolio_url?: string | null
+          position_id?: string | null
+          position_title?: string
+          source?: string | null
+          status?: string
+          supporting_path?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "job_positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_positions: {
+        Row: {
+          application_deadline: string | null
+          benefits: string[]
+          category: string
+          created_at: string
+          department: string
+          description: string
+          employment_type: string
+          experience_level: string
+          id: string
+          is_active: boolean
+          location: string
+          reporting_to: string | null
+          requirements: string[]
+          responsibilities: string[]
+          salary_range: string | null
+          short_description: string
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+          work_mode: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          benefits?: string[]
+          category?: string
+          created_at?: string
+          department: string
+          description: string
+          employment_type: string
+          experience_level: string
+          id?: string
+          is_active?: boolean
+          location: string
+          reporting_to?: string | null
+          requirements?: string[]
+          responsibilities?: string[]
+          salary_range?: string | null
+          short_description: string
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+          work_mode: string
+        }
+        Update: {
+          application_deadline?: string | null
+          benefits?: string[]
+          category?: string
+          created_at?: string
+          department?: string
+          description?: string
+          employment_type?: string
+          experience_level?: string
+          id?: string
+          is_active?: boolean
+          location?: string
+          reporting_to?: string | null
+          requirements?: string[]
+          responsibilities?: string[]
+          salary_range?: string | null
+          short_description?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          work_mode?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -104,6 +259,60 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      talent_pool: {
+        Row: {
+          admin_notes: string | null
+          area_of_interest: string | null
+          country: string
+          created_at: string
+          cv_path: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          linkedin_url: string | null
+          message: string | null
+          phone: string | null
+          portfolio_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          area_of_interest?: string | null
+          country: string
+          created_at?: string
+          cv_path?: string | null
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          linkedin_url?: string | null
+          message?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          area_of_interest?: string | null
+          country?: string
+          created_at?: string
+          cv_path?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          linkedin_url?: string | null
+          message?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
