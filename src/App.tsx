@@ -11,6 +11,9 @@ import Security from "./pages/Security";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Waitlist from "./pages/Waitlist";
+import Careers from "./pages/Careers";
+import CareerDetail from "./pages/CareerDetail";
+import TalentPool from "./pages/TalentPool";
 import { AuthProvider } from "./lib/auth";
 
 export default function App() {
@@ -29,6 +32,9 @@ export default function App() {
           <Route path="/about" element={<Layout><About /></Layout>} />
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
           <Route path="/waitlist" element={<Layout><Waitlist /></Layout>} />
+          <Route path="/careers" element={<Layout><Careers /></Layout>} />
+          <Route path="/careers/talent-pool" element={<Layout><TalentPool /></Layout>} />
+          <Route path="/careers/:slug" element={<Layout><CareerDetail /></Layout>} />
           <Route path="*" element={<Layout><Home /></Layout>} />
         </Routes>
       </BrowserRouter>

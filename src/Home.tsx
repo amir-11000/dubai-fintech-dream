@@ -48,6 +48,7 @@ const navLinks = [
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
   { to: "/security", label: "Security" },
+  { to: "/careers", label: "Careers" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
@@ -913,7 +914,7 @@ const FinalCTA = () => (
 ========================================================= */
 const footerCols = [
   { t: "Product", links: [["Features","/features"], ["Pricing","/pricing"], ["Security","/security"], ["Waitlist","/waitlist"]] as const },
-  { t: "Company", links: [["About","/about"], ["Contact","/contact"]] as const },
+  { t: "Company", links: [["About","/about"], ["Careers","/careers"], ["Contact","/contact"]] as const },
   { t: "Legal",   links: [["Privacy","/contact"], ["Terms","/contact"], ["Compliance","/security"]] as const },
 ];
 
