@@ -819,32 +819,72 @@ export const WaitlistForm = ({ compact = false }: { compact?: boolean }) => {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState(""); // honeypot
   const [state, setState] = useState<"idle" | "loading" | "done">("idle");
-  const submit = (e: FormEvent) => {
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (website) return; // bot
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    setErrMsg(null);
+    if (website) return; // bot honeypot
+    const clean = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean) || clean.length > 254) {
+      setErrMsg("Please enter a valid email address.");
+      return;
+    }
     setState("loading");
-    setTimeout(() => { setState("done"); track("waitlist_signup", { email_domain: email.split("@")[1] }); }, 900);
+    try {
+      const { supabase } = await import("./integrations/supabase/client");
+      const { error } = await supabase
+        .from("waitlist")
+        .insert({
+          email: clean,
+          source: typeof window !== "undefined" ? window.location.pathname : null,
+          user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+        });
+      if (error) {
+        // Postgres unique-violation code = 23505
+        if ((error as any).code === "23505" || /duplicate/i.test(error.message)) {
+          setState("done");
+          track("waitlist_signup_duplicate", { email_domain: clean.split("@")[1] });
+          return;
+        }
+        throw error;
+      }
+      setState("done");
+      track("waitlist_signup", { email_domain: clean.split("@")[1] });
+    } catch (err: any) {
+      setState("idle");
+      setErrMsg(err?.message || "Something went wrong. Please try again.");
+    }
   };
+
   return (
-    <form onSubmit={submit} className={`mx-auto flex w-full ${compact ? "max-w-md" : "max-w-lg"} flex-col gap-3 sm:flex-row`}>
-      <input type="text" name="website" value={website} onChange={(e)=>setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
-      <label className="sr-only" htmlFor="wl-email">Email</label>
-      <input
-        id="wl-email"
-        type="email"
-        required
-        maxLength={120}
-        placeholder="you@dubai.ae"
-        value={email}
-        onChange={(e)=>setEmail(e.target.value)}
-        className="flex-1 rounded-full bg-white/[0.04] px-5 py-3.5 text-sm text-snow outline-none transition placeholder:text-silver/40 hairline focus:bg-white/[0.07] focus:ring-2 focus:ring-glow/40"
-      />
-      <button type="submit" disabled={state !== "idle"} className="inline-flex items-center justify-center gap-2 rounded-full bg-glow px-6 py-3.5 text-sm font-medium text-white transition hover:bg-glow/90 disabled:opacity-70">
-        {state === "loading" && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
-        {state === "done" ? <><CheckCircle2 className="h-4 w-4" /> You're in</> : "Join Waitlist"}
-      </button>
-    </form>
+    <div className={`mx-auto w-full ${compact ? "max-w-md" : "max-w-lg"}`}>
+      <form onSubmit={submit} className="flex w-full flex-col gap-3 sm:flex-row">
+        <input type="text" name="website" value={website} onChange={(e)=>setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
+        <label className="sr-only" htmlFor="wl-email">Email</label>
+        <input
+          id="wl-email"
+          type="email"
+          required
+          maxLength={120}
+          placeholder="you@dubai.ae"
+          value={email}
+          onChange={(e)=>{ setEmail(e.target.value); if (errMsg) setErrMsg(null); }}
+          disabled={state === "done"}
+          className="flex-1 rounded-full bg-white/[0.04] px-5 py-3.5 text-sm text-snow outline-none transition placeholder:text-silver/40 hairline focus:bg-white/[0.07] focus:ring-2 focus:ring-glow/40 disabled:opacity-60"
+        />
+        <button type="submit" disabled={state !== "idle"} className="inline-flex items-center justify-center gap-2 rounded-full bg-glow px-6 py-3.5 text-sm font-medium text-white transition hover:bg-glow/90 disabled:opacity-70">
+          {state === "loading" && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
+          {state === "done" ? <><CheckCircle2 className="h-4 w-4" /> You're in</> : "Join Waitlist"}
+        </button>
+      </form>
+      {errMsg && <p className="mt-2 text-center text-xs text-red-300" role="alert">{errMsg}</p>}
+      {state === "done" && (
+        <p className="mt-3 text-center text-xs text-emerald-300">
+          Thank you — your email is on the list. We'll be in touch.
+        </p>
+      )}
+    </div>
   );
 };
 
