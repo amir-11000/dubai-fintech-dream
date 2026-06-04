@@ -1,4 +1,4 @@
-import { Sparkles, ShieldCheck, Zap, Lock } from "lucide-react";
+import { ShieldCheck, Zap, Lock } from "lucide-react";
 import { Seo, breadcrumb } from "../lib/seo";
 import { WaitlistForm } from "../Home";
 
