@@ -4,7 +4,7 @@ import { motion, useInView, useScroll, useTransform, AnimatePresence } from "fra
 import {
   ArrowRight, ArrowUpRight, ShieldCheck, Zap, Globe2, Bot, Coins, Bitcoin,
   Sparkles, Send, CircleDollarSign, TrendingUp, CheckCircle2, Plus, Minus,
-  Star, Lock, Fingerprint, Cpu, Wallet, Smartphone, Twitter, Linkedin, Instagram,
+  Star, Lock, Fingerprint, Cpu, Wallet, Smartphone, Instagram,
   Menu, X,
 } from "lucide-react";
 import { track } from "./lib/analytics";
@@ -242,7 +242,7 @@ const Hero = () => (
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link to="/waitlist" onClick={() => track("cta_click", { button_label: "hero_waitlist" })} className="group inline-flex items-center justify-center gap-2 rounded-full bg-glow px-6 py-4 text-sm font-medium text-white shadow-[0_14px_40px_-10px_rgba(45,127,255,0.7)] transition hover:bg-glow/90">
-            Join 50,000+ on the Waitlist <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            Join the Waitlist <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </Link>
           <a href="#demo" onClick={() => track("cta_click", { button_label: "hero_demo" })} className="inline-flex items-center justify-center gap-2 rounded-full glass px-6 py-4 text-sm text-snow hover:bg-white/10">
             Watch the Demo <ArrowUpRight className="h-4 w-4" />
@@ -549,25 +549,7 @@ const Counter = ({ to, prefix = "", suffix = "", duration = 2.4 }: { to: number;
   return <span ref={ref} className="font-display tabular-nums">{prefix}{n.toLocaleString()}{suffix}</span>;
 };
 
-const Stats = () => (
-  <section className="relative py-20">
-    <Container>
-      <div className="grid gap-6 rounded-3xl glass-strong p-8 md:grid-cols-4 md:p-12">
-        {[
-          { to: 50000, suffix: "+", l: "Waitlist members" },
-          { to: 2400, suffix: "+", l: "Five-star reviews" },
-          { to: 38, suffix: "M+", l: "AED moved monthly" },
-          { to: 30, suffix: "+", l: "Currencies supported" },
-        ].map((s) => (
-          <div key={s.l} className="text-center">
-            <div className="text-4xl font-semibold text-gradient-silver md:text-5xl"><Counter to={s.to} suffix={s.suffix} /></div>
-            <div className="mt-2 text-xs uppercase tracking-widest text-silver/60">{s.l}</div>
-          </div>
-        ))}
-      </div>
-    </Container>
-  </section>
-);
+const Stats = () => null;
 
 /* =========================================================
    GOLD
@@ -659,7 +641,7 @@ const quotes = [
 const Testimonials = () => (
   <section className="relative py-24 md:py-32">
     <Container>
-      <SectionHead eyebrow="Loved by the UAE" title={<>4.9 / 5 from <span className="text-gradient-blue">2,400+ reviews.</span></>} />
+      <SectionHead eyebrow="Loved by the UAE" title={<>Built for how the <span className="text-gradient-blue">UAE moves money.</span></>} />
       <div className="mt-14 grid gap-5 md:grid-cols-3">
         {quotes.map((q, i) => (
           <Reveal key={q.n} delay={i * 0.08}>
@@ -818,7 +800,7 @@ const FinalCTA = () => (
         <h2 className="font-display mx-auto mt-5 max-w-3xl text-balance text-5xl font-semibold leading-[1.02] text-gradient-silver md:text-7xl">
           Money is changing.<br/><span className="text-gradient-blue">Be early.</span>
         </h2>
-        <p className="mx-auto mt-5 max-w-xl text-base text-silver/80 md:text-lg">Join 50,000+ on the Shoho Pay waitlist. We'll email you when your seat opens.</p>
+        <p className="mx-auto mt-5 max-w-xl text-base text-silver/80 md:text-lg">Join the Shoho Pay waitlist. We'll email you when your seat opens.</p>
         <div className="mt-9"><WaitlistForm /></div>
         <p className="mt-4 text-[11px] text-silver/50">Single opt-in. We never share your email. Spam-protected.</p>
       </Reveal>
@@ -850,9 +832,7 @@ export const Footer = () => (
             <button className="rounded-full bg-snow px-4 py-2.5 text-sm font-medium text-ink hover:bg-white">Subscribe</button>
           </form>
           <div className="mt-6 flex gap-3 text-silver">
-            <a href="#" aria-label="Twitter" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Twitter className="h-4 w-4" /></a>
-            <a href="#" aria-label="LinkedIn" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Linkedin className="h-4 w-4" /></a>
-            <a href="#" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>
+            <a href="https://www.instagram.com/shoho_pay" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full glass hover:text-snow"><Instagram className="h-4 w-4" /></a>
           </div>
         </div>
         {footerCols.map((c)=>(
@@ -889,7 +869,7 @@ export default function Home() {
       <Features />
       <AISection />
       <FXSection />
-      <Stats />
+      
       <GoldSection />
       <SecuritySection />
       <Testimonials />

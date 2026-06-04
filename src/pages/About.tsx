@@ -29,22 +29,6 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-16">
-        <div className="mx-auto max-w-5xl px-6 md:px-10">
-          <div className="grid gap-5 md:grid-cols-3">
-            {[
-              { k: "2024", v: "Founded in DIFC, Dubai" },
-              { k: "50K+", v: "Waitlist members in 90 days" },
-              { k: "$18M", v: "Seed round — Sequoia, a16z, Mubadala" },
-            ].map((s) => (
-              <div key={s.k} className="rounded-3xl glass-card p-7">
-                <div className="font-display text-4xl font-semibold text-gradient-silver">{s.k}</div>
-                <div className="mt-2 text-sm text-silver/75">{s.v}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section className="py-16">
         <div className="mx-auto max-w-5xl px-6 md:px-10">

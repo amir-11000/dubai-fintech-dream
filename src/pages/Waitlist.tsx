@@ -1,4 +1,4 @@
-import { Sparkles, ShieldCheck, Zap, Lock } from "lucide-react";
+import { ShieldCheck, Zap, Lock } from "lucide-react";
 import { Seo, breadcrumb } from "../lib/seo";
 import { WaitlistForm } from "../Home";
 
@@ -7,7 +7,7 @@ export default function Waitlist() {
     <>
       <Seo
         title="Join the Waitlist — Shoho Pay | Early Access in the UAE"
-        description="Be among the first 50,000+ on the Shoho Pay waitlist. The UAE's luxury wallet — payments, crypto, gold and Billy, your AI accountant."
+        description="Join the Shoho Pay waitlist. The UAE's luxury wallet — payments, crypto, gold and Billy, your AI accountant."
         path="/waitlist"
         jsonLd={breadcrumb([{ name: "Home", path: "/" }, { name: "Waitlist", path: "/waitlist" }])}
       />
@@ -35,22 +35,6 @@ export default function Waitlist() {
             <span className="inline-flex items-center gap-1.5"><Zap className="h-3 w-3 text-glow" /> Spam-protected</span>
           </div>
 
-          <div className="mx-auto mt-16 grid max-w-2xl gap-3 sm:grid-cols-3">
-            {[
-              { v: "50K+", l: "Waitlist members" },
-              { v: "2.4K", l: "Five-star reviews" },
-              { v: "AED 38M+", l: "Moved monthly" },
-            ].map((s) => (
-              <div key={s.l} className="rounded-2xl glass-card p-5">
-                <div className="font-display text-2xl font-semibold text-gradient-silver">{s.v}</div>
-                <div className="mt-1 text-[11px] uppercase tracking-widest text-silver/60">{s.l}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 inline-flex items-center gap-2 rounded-full glass px-4 py-2 text-xs text-silver">
-            <Sparkles className="h-3.5 w-3.5 text-glow" /> 47 people joined in the last hour from the UAE
-          </div>
         </div>
       </section>
     </>
