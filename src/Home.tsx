@@ -107,12 +107,13 @@ export const Nav = () => {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Link to="/auth" className="rounded-full px-4 py-2 text-sm text-silver hover:text-snow">Sign in</Link>
+          <LanguageSwitcher />
+          <Link to="/auth" className="rounded-full px-4 py-2 text-sm text-silver hover:text-snow">{t("nav.signin")}</Link>
           <Link to="/waitlist" onClick={() => track("cta_click", { button_label: "nav_waitlist" })} className="group inline-flex items-center gap-1.5 rounded-full bg-glow px-4 py-2 text-sm font-medium text-white shadow-[0_8px_30px_-8px_rgba(45,127,255,0.6)] transition hover:bg-glow/90">
-            Join Waitlist <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+            {t("nav.join_waitlist")} <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
           </Link>
         </div>
-        <button onClick={() => setOpen(true)} aria-label="Open menu" aria-expanded={open} className="grid h-10 w-10 place-items-center rounded-full glass md:hidden">
+        <button onClick={() => setOpen(true)} aria-label={t("nav.open_menu")} aria-expanded={open} className="grid h-10 w-10 place-items-center rounded-full glass md:hidden">
           <Menu className="h-4 w-4 text-snow" />
         </button>
       </Container>
@@ -149,7 +150,7 @@ export const Nav = () => {
                   <img src="/logo.png" alt="Shoho Pay" className="h-9 w-9 rounded-lg object-contain" />
                   <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
                 </Link>
-                <button onClick={() => setOpen(false)} aria-label="Close menu" className="grid h-10 w-10 place-items-center rounded-full glass">
+                <button onClick={() => setOpen(false)} aria-label={t("nav.close_menu")} className="grid h-10 w-10 place-items-center rounded-full glass">
                   <X className="h-4 w-4 text-snow" />
                 </button>
               </div>
@@ -174,8 +175,9 @@ export const Nav = () => {
                 ))}
               </nav>
               <div className="mx-auto mt-6 flex w-full max-w-7xl flex-col gap-3 px-6">
-                <Link to="/auth" onClick={() => setOpen(false)} className="rounded-full glass px-5 py-3.5 text-center text-sm text-snow">Sign in</Link>
-                <Link to="/waitlist" onClick={() => setOpen(false)} className="rounded-full bg-glow px-5 py-3.5 text-center text-sm font-medium text-white">Join Waitlist</Link>
+                <LanguageSwitcher className="mx-auto" onChange={() => setOpen(false)} />
+                <Link to="/auth" onClick={() => setOpen(false)} className="rounded-full glass px-5 py-3.5 text-center text-sm text-snow">{t("nav.signin")}</Link>
+                <Link to="/waitlist" onClick={() => setOpen(false)} className="rounded-full bg-glow px-5 py-3.5 text-center text-sm font-medium text-white">{t("nav.join_waitlist")}</Link>
               </div>
             </motion.div>
           </>
