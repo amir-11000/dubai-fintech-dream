@@ -60,13 +60,32 @@ export const Nav = () => {
     on(); window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, []);
+  // Lock body scroll when mobile menu open
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    const prevPad = document.body.style.paddingRight;
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
+    return () => {
+      document.body.style.overflow = prev;
+      document.body.style.paddingRight = prevPad;
+    };
+  }, [open]);
+  // Close on ESC
+  useEffect(() => {
+    if (!open) return;
+    const on = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  }, [open]);
+
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "bg-ink/70 backdrop-blur-xl border-b border-white/[0.06]" : "bg-transparent"}`}>
       <Container className="flex h-16 items-center justify-between md:h-20">
         <Link to="/" className="flex items-center gap-2.5" aria-label="Shoho Pay home">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-glow to-glow/40 glow-blue">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
+          <img src="/logo.png" alt="Shoho Pay" className="h-9 w-9 rounded-lg object-contain" />
           <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
@@ -88,32 +107,73 @@ export const Nav = () => {
             Join Waitlist <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
           </Link>
         </div>
-        <button onClick={() => setOpen(true)} aria-label="Open menu" className="grid h-10 w-10 place-items-center rounded-full glass md:hidden">
+        <button onClick={() => setOpen(true)} aria-label="Open menu" aria-expanded={open} className="grid h-10 w-10 place-items-center rounded-full glass md:hidden">
           <Menu className="h-4 w-4 text-snow" />
         </button>
       </Container>
 
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-ink/95 backdrop-blur-2xl md:hidden">
-            <Container className="flex h-16 items-center justify-between">
-              <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
-              <button onClick={() => setOpen(false)} aria-label="Close menu" className="grid h-10 w-10 place-items-center rounded-full glass">
-                <X className="h-4 w-4 text-snow" />
-              </button>
-            </Container>
-            <Container className="mt-8 flex flex-col gap-1">
-              {navLinks.map((l) => (
-                <NavLink key={l.to} to={l.to} onClick={() => setOpen(false)} className="rounded-2xl px-5 py-4 text-xl text-snow hover:bg-white/5">
-                  {l.label}
-                </NavLink>
-              ))}
-              <div className="mt-6 flex flex-col gap-3">
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="bd"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-[60] bg-ink/70 backdrop-blur-xl md:hidden"
+              aria-hidden
+            />
+            {/* Sheet */}
+            <motion.div
+              key="sheet"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Mobile navigation"
+              initial={{ y: "-100%", opacity: 0.6 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "-100%", opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-x-0 top-0 z-[70] flex max-h-[100dvh] flex-col overflow-y-auto overscroll-contain bg-ink/95 backdrop-blur-2xl pb-[max(env(safe-area-inset-bottom),1rem)] md:hidden"
+              style={{ paddingTop: "max(env(safe-area-inset-top), 0px)" }}
+            >
+              <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
+                <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5">
+                  <img src="/logo.png" alt="Shoho Pay" className="h-9 w-9 rounded-lg object-contain" />
+                  <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
+                </Link>
+                <button onClick={() => setOpen(false)} aria-label="Close menu" className="grid h-10 w-10 place-items-center rounded-full glass">
+                  <X className="h-4 w-4 text-snow" />
+                </button>
+              </div>
+              <nav className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-6 pt-4" aria-label="Mobile">
+                {navLinks.map((l, i) => (
+                  <motion.div
+                    key={l.to}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 + i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <NavLink
+                      to={l.to}
+                      onClick={() => setOpen(false)}
+                      className={({ isActive }) =>
+                        `block rounded-2xl px-5 py-4 text-xl transition ${isActive ? "bg-white/10 text-snow" : "text-snow hover:bg-white/5"}`
+                      }
+                    >
+                      {l.label}
+                    </NavLink>
+                  </motion.div>
+                ))}
+              </nav>
+              <div className="mx-auto mt-6 flex w-full max-w-7xl flex-col gap-3 px-6">
                 <Link to="/auth" onClick={() => setOpen(false)} className="rounded-full glass px-5 py-3.5 text-center text-sm text-snow">Sign in</Link>
                 <Link to="/waitlist" onClick={() => setOpen(false)} className="rounded-full bg-glow px-5 py-3.5 text-center text-sm font-medium text-white">Join Waitlist</Link>
               </div>
-            </Container>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>
@@ -204,7 +264,7 @@ const TitaniumCard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[9px] uppercase tracking-widest text-silver/60">Cardholder</div>
-                <div className="text-xs text-snow/85">A. AL MAKTOUM</div>
+                <div className="text-xs text-snow/85">YOUR NAME</div>
               </div>
               <div className="text-right">
                 <div className="text-[9px] uppercase tracking-widest text-silver/60">Exp</div>
@@ -342,14 +402,14 @@ const ProductDemo = () => (
             </div>
             <div className="mt-4 text-[10px] uppercase tracking-widest text-silver/60">Insights</div>
             <div className="mt-2 space-y-2">
-              {["Coffee spend down 18%", "Subscriptions: 3 unused", "FX saved AED 412"].map((i)=>(
+              {["Smart budgeting in real time", "Auto-save when you're under budget", "FX optimized at interbank rates"].map((i)=>(
                 <div key={i} className="flex items-center gap-2 rounded-xl glass px-3 py-2 text-[11px] text-snow">
                   <Sparkles className="h-3 w-3 text-glow" /> {i}
                 </div>
               ))}
             </div>
             <div className="mt-4 rounded-2xl bg-gradient-to-br from-glow/30 to-glow/0 p-3 text-[11px] text-snow">
-              <TrendingUp className="mb-1 inline h-3.5 w-3.5 text-glow" /> Forecast: +AED 3,200 net by month-end.
+              <TrendingUp className="mb-1 inline h-3.5 w-3.5 text-glow" /> Billy keeps your money on plan — automatically.
             </div>
           </PhoneMock>
         </Reveal>
@@ -451,10 +511,10 @@ const AISection = () => (
             <Bot className="h-12 w-12 text-white" />
           </div>
           {[
-            { ic: TrendingUp, t: "+ AED 412 saved", cls: "top-6 left-4" },
-            { ic: Sparkles, t: "Budget on track", cls: "bottom-12 right-2" },
-            { ic: Coins, t: "Auto-bought 1.2g gold", cls: "bottom-4 left-10" },
-            { ic: Zap, t: "FX saved AED 84", cls: "top-16 right-4" },
+            { ic: TrendingUp, t: "On budget", cls: "top-6 left-4" },
+            { ic: Sparkles, t: "Smart insights", cls: "bottom-12 right-2" },
+            { ic: Coins, t: "Auto-save on", cls: "bottom-4 left-10" },
+            { ic: Zap, t: "Interbank FX", cls: "top-16 right-4" },
           ].map((b, i) => (
             <motion.div key={b.t} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }} className={`absolute ${b.cls} flex items-center gap-2 rounded-full glass-strong px-3 py-2 text-[11px] text-snow shadow-xl`}>
               <b.ic className="h-3.5 w-3.5 text-glow" /> {b.t}
@@ -823,7 +883,7 @@ export const Footer = () => (
       <div className="grid gap-12 md:grid-cols-5">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-glow to-glow/40"><Sparkles className="h-4 w-4 text-white" /></div>
+            <img src="/logo.png" alt="Shoho Pay" className="h-9 w-9 rounded-lg object-contain" />
             <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
           </div>
           <p className="mt-5 max-w-sm text-sm text-silver/70">The luxury wallet of the UAE — payments, crypto, gold and Billy, your AI accountant. Built in Dubai.</p>
