@@ -128,6 +128,36 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist: {
+        Row: {
+          country: string | null
+          created_at: string
+          email: string
+          id: string
+          ip_address: string | null
+          source: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          ip_address?: string | null
+          source?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: string | null
+          source?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
