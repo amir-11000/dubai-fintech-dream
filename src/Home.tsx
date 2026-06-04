@@ -800,7 +800,7 @@ const FinalCTA = () => (
         <h2 className="font-display mx-auto mt-5 max-w-3xl text-balance text-5xl font-semibold leading-[1.02] text-gradient-silver md:text-7xl">
           Money is changing.<br/><span className="text-gradient-blue">Be early.</span>
         </h2>
-        <p className="mx-auto mt-5 max-w-xl text-base text-silver/80 md:text-lg">Join 50,000+ on the Shoho Pay waitlist. We'll email you when your seat opens.</p>
+        <p className="mx-auto mt-5 max-w-xl text-base text-silver/80 md:text-lg">Join the Shoho Pay waitlist. We'll email you when your seat opens.</p>
         <div className="mt-9"><WaitlistForm /></div>
         <p className="mt-4 text-[11px] text-silver/50">Single opt-in. We never share your email. Spam-protected.</p>
       </Reveal>
