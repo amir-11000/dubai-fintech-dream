@@ -72,12 +72,19 @@ const download = (filename: string, content: string) => {
 export default function Admin() {
   const { user, isAdmin, loading, signOut } = useAuth();
   const nav = useNavigate();
-  const [tab, setTab] = useState<"overview" | "users" | "messages" | "waitlist">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "messages" | "waitlist" | "careers" | "talent">("overview");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [waitlist, setWaitlist] = useState<Waitlist[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [talent, setTalent] = useState<TalentEntry[]>([]);
   const [waitSearch, setWaitSearch] = useState("");
+  const [appSearch, setAppSearch] = useState("");
+  const [appStatusFilter, setAppStatusFilter] = useState<string>("all");
+  const [appPositionFilter, setAppPositionFilter] = useState<string>("all");
+  const [appCountryFilter, setAppCountryFilter] = useState<string>("all");
+  const [talentSearch, setTalentSearch] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "blocked">("all");
   const [busy, setBusy] = useState(false);
@@ -91,16 +98,20 @@ export default function Admin() {
 
   const refresh = async () => {
     setBusy(true);
-    const [{ data: p }, { data: m }, { data: r }, { data: w }] = await Promise.all([
+    const [{ data: p }, { data: m }, { data: r }, { data: w }, { data: ap }, { data: tp }] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("waitlist").select("*").order("created_at", { ascending: false }),
+      (supabase as any).from("job_applications").select("*").order("created_at", { ascending: false }),
+      (supabase as any).from("talent_pool").select("*").order("created_at", { ascending: false }),
     ]);
     setProfiles((p as Profile[]) || []);
     setMessages((m as Msg[]) || []);
     setRoles((r as Role[]) || []);
     setWaitlist((w as Waitlist[]) || []);
+    setApplications((ap as Application[]) || []);
+    setTalent((tp as TalentEntry[]) || []);
     setBusy(false);
   };
 
