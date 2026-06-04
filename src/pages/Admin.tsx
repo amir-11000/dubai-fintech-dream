@@ -458,6 +458,32 @@ export default function Admin() {
             </div>
           );
         })()}
+
+        {tab === "careers" && (
+          <CareersTab
+            applications={applications}
+            setApplications={setApplications}
+            search={appSearch}
+            setSearch={setAppSearch}
+            statusFilter={appStatusFilter}
+            setStatusFilter={setAppStatusFilter}
+            positionFilter={appPositionFilter}
+            setPositionFilter={setAppPositionFilter}
+            countryFilter={appCountryFilter}
+            setCountryFilter={setAppCountryFilter}
+            logAction={logAction}
+          />
+        )}
+
+        {tab === "talent" && (
+          <TalentTab
+            entries={talent}
+            setEntries={setTalent}
+            search={talentSearch}
+            setSearch={setTalentSearch}
+            logAction={logAction}
+          />
+        )}
       </main>
     </div>
   );
