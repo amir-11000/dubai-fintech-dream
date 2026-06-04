@@ -1,43 +1,42 @@
 /// <reference types="npm:@types/react@18.3.1" />
 
 import * as React from 'npm:react@18.3.1'
-
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
+  Body, Button, Container, Head, Heading, Html, Link, Preview, Text,
 } from 'npm:@react-email/components@0.0.22'
+import { brand, styles as s } from './_brand.ts'
 
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
 }
 
-export const RecoveryEmail = ({
-  siteName,
-  confirmationUrl,
-}: RecoveryEmailProps) => (
+export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Reset your password for {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Reset your password</Heading>
-        <Text style={text}>
-          We received a request to reset your password for {siteName}. Click
-          the button below to choose a new password.
+    <Preview>Reset your {brand.name} password</Preview>
+    <Body style={s.main}>
+      <Container style={s.container}>
+        <div style={s.header}>
+          <Text style={s.wordmark}>{brand.name}</Text>
+          <hr style={s.accentLine} />
+        </div>
+        <Heading style={s.h1}>Reset your password</Heading>
+        <Text style={s.text}>
+          We received a request to reset the password for your {brand.name} account.
+          Choose a new password by tapping the button below.
         </Text>
-        <Button style={button} href={confirmationUrl}>
-          Reset Password
-        </Button>
-        <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this
-          email. Your password will not be changed.
+        <div style={{ textAlign: 'center', margin: '8px 0 28px' }}>
+          <Button style={s.button} href={confirmationUrl}>Reset password</Button>
+        </div>
+        <Text style={{ ...s.text, fontSize: '13px' }}>
+          Or paste this link into your browser:<br />
+          <Link href={confirmationUrl} style={s.link}>{confirmationUrl}</Link>
+        </Text>
+        <hr style={s.divider} />
+        <Text style={s.footer}>
+          Didn't request a reset? You can safely ignore this email — your password won't change.<br />
+          © {brand.name}
         </Text>
       </Container>
     </Body>
@@ -45,27 +44,3 @@ export const RecoveryEmail = ({
 )
 
 export default RecoveryEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
