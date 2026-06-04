@@ -549,25 +549,7 @@ const Counter = ({ to, prefix = "", suffix = "", duration = 2.4 }: { to: number;
   return <span ref={ref} className="font-display tabular-nums">{prefix}{n.toLocaleString()}{suffix}</span>;
 };
 
-const Stats = () => (
-  <section className="relative py-20">
-    <Container>
-      <div className="grid gap-6 rounded-3xl glass-strong p-8 md:grid-cols-4 md:p-12">
-        {[
-          { to: 50000, suffix: "+", l: "Waitlist members" },
-          { to: 2400, suffix: "+", l: "Five-star reviews" },
-          { to: 38, suffix: "M+", l: "AED moved monthly" },
-          { to: 30, suffix: "+", l: "Currencies supported" },
-        ].map((s) => (
-          <div key={s.l} className="text-center">
-            <div className="text-4xl font-semibold text-gradient-silver md:text-5xl"><Counter to={s.to} suffix={s.suffix} /></div>
-            <div className="mt-2 text-xs uppercase tracking-widest text-silver/60">{s.l}</div>
-          </div>
-        ))}
-      </div>
-    </Container>
-  </section>
-);
+const Stats = () => null;
 
 /* =========================================================
    GOLD
