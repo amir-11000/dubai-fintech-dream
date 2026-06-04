@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useI18n, Lang } from "@/lib/i18n";
+import { useI18n, Lang } from "../lib/i18n";
 
 /**
  * Premium language selection splash, shown once on first visit.
