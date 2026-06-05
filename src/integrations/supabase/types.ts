@@ -78,14 +78,18 @@ export type Database = {
           cover_letter: string | null
           created_at: string
           current_company: string | null
+          current_location: string | null
           cv_path: string | null
           email: string
+          expected_salary: string | null
           first_name: string
           github_url: string | null
           id: string
           ip_address: string | null
           last_name: string
           linkedin_url: string | null
+          nationality: string | null
+          notice_period: string | null
           phone: string
           portfolio_path: string | null
           portfolio_url: string | null
@@ -95,6 +99,7 @@ export type Database = {
           status: string
           supporting_path: string | null
           updated_at: string
+          years_experience: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -102,14 +107,18 @@ export type Database = {
           cover_letter?: string | null
           created_at?: string
           current_company?: string | null
+          current_location?: string | null
           cv_path?: string | null
           email: string
+          expected_salary?: string | null
           first_name: string
           github_url?: string | null
           id?: string
           ip_address?: string | null
           last_name: string
           linkedin_url?: string | null
+          nationality?: string | null
+          notice_period?: string | null
           phone: string
           portfolio_path?: string | null
           portfolio_url?: string | null
@@ -119,6 +128,7 @@ export type Database = {
           status?: string
           supporting_path?: string | null
           updated_at?: string
+          years_experience?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -126,14 +136,18 @@ export type Database = {
           cover_letter?: string | null
           created_at?: string
           current_company?: string | null
+          current_location?: string | null
           cv_path?: string | null
           email?: string
+          expected_salary?: string | null
           first_name?: string
           github_url?: string | null
           id?: string
           ip_address?: string | null
           last_name?: string
           linkedin_url?: string | null
+          nationality?: string | null
+          notice_period?: string | null
           phone?: string
           portfolio_path?: string | null
           portfolio_url?: string | null
@@ -143,6 +157,7 @@ export type Database = {
           status?: string
           supporting_path?: string | null
           updated_at?: string
+          years_experience?: string | null
         }
         Relationships: [
           {

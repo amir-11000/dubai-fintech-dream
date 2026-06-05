@@ -37,15 +37,14 @@ type TalentEntry = {
   status: string; created_at: string;
 };
 
-const APP_STATUSES = ["new", "under_review", "interview", "shortlisted", "rejected", "hired"] as const;
-const statusLabel = (s: string) => ({ new: "New", under_review: "Under Review", interview: "Interview", shortlisted: "Shortlisted", rejected: "Rejected", hired: "Hired" } as Record<string, string>)[s] || s;
+const APP_STATUSES = ["pending_review", "under_review", "shortlisted", "rejected", "accepted"] as const;
+const statusLabel = (s: string) => ({ pending_review: "Pending Review", under_review: "Under Review", shortlisted: "Shortlisted", rejected: "Rejected", accepted: "Accepted" } as Record<string, string>)[s] || s;
 const statusColor = (s: string) => ({
-  new: "bg-glow/15 text-glow",
+  pending_review: "bg-glow/15 text-glow",
   under_review: "bg-amber-500/15 text-amber-300",
-  interview: "bg-violet-500/15 text-violet-300",
   shortlisted: "bg-emerald-500/15 text-emerald-300",
   rejected: "bg-red-500/15 text-red-300",
-  hired: "bg-gold/15 text-gold",
+  accepted: "bg-gold/15 text-gold",
 } as Record<string, string>)[s] || "bg-white/5 text-silver/60";
 
 const fmtDate = (s: string | null) => s ? new Date(s).toLocaleString() : "—";
@@ -215,7 +214,7 @@ export default function Admin() {
             { k: "users", l: `Users (${stats.total})`, i: Users },
             { k: "messages", l: `Messages (${stats.unread} new)`, i: MessageSquare },
             { k: "waitlist", l: `Waitlist (${waitlist.length})`, i: Mailbox },
-            { k: "careers", l: `Careers (${applications.filter(a => a.status === "new").length} new)`, i: Briefcase },
+            { k: "careers", l: `Careers (${applications.filter(a => a.status === "pending_review").length} new)`, i: Briefcase },
             { k: "talent", l: `Talent Pool (${talent.length})`, i: UserPlus },
           ].map(t => (
             <button
