@@ -18,6 +18,7 @@ import TalentPool from "./pages/TalentPool";
 import { AuthProvider } from "./lib/auth";
 import { LanguageProvider } from "./lib/i18n";
 import LanguageSplash from "./components/LanguageSplash";
+import RequireVerifiedEmail from "./components/RequireVerifiedEmail";
 
 export default function App() {
   return (
