@@ -18,6 +18,7 @@ import TalentPool from "./pages/TalentPool";
 import { AuthProvider } from "./lib/auth";
 import { LanguageProvider } from "./lib/i18n";
 import LanguageSplash from "./components/LanguageSplash";
+import RequireVerifiedEmail from "./components/RequireVerifiedEmail";
 
 export default function App() {
   return (
@@ -30,7 +31,7 @@ export default function App() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin" element={<RequireVerifiedEmail><Admin /></RequireVerifiedEmail>} />
             <Route path="/" element={<Layout><Home /></Layout>} />
             <Route path="/features" element={<Layout><Features /></Layout>} />
             <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
