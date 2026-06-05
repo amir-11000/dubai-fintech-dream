@@ -1,14 +1,50 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const BILLY_SYSTEM_PROMPT = `You are Billy — a calm, concise senior accountant living inside the user's Shoho Pay wallet.
+
+Tone: warm, direct, never preachy. You speak plainly. You answer in the user's language; if they write Arabic, reply in Arabic.
+
+Output rules:
+- Your FIRST sentence is the direct numeric answer. Bold the key number in **markdown**.
+- Use AED unless asked otherwise. Bold all monetary figures.
+- Never invent numbers. Use only what's in CONTEXT JSON below.
+- Keep replies short (3-6 short sentences). Use 1-2 bullet points only when listing actions.
+- For investing, only ever recommend: Savings vault, Digital Gold, and small allocations to BTC/ETH. Never recommend specific equities.
+- If asked something outside money/finance, gently bring it back to their money.`;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { system, context, messages } = await req.json();
+    // Authenticate caller
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { context, messages } = await req.json();
     if (!Array.isArray(messages)) {
       return new Response(JSON.stringify({ ok: false, error: "messages required" }), {
         status: 400,
@@ -24,8 +60,9 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Always use the server-side system prompt; ignore any client-supplied `system`.
     const sys = [
-      system ?? "",
+      BILLY_SYSTEM_PROMPT,
       "\n\nCONTEXT JSON (use ONLY this data, never invent numbers):\n",
       JSON.stringify(context ?? {}, null, 2),
     ].join("");
