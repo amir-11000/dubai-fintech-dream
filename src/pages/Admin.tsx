@@ -214,7 +214,7 @@ export default function Admin() {
             { k: "users", l: `Users (${stats.total})`, i: Users },
             { k: "messages", l: `Messages (${stats.unread} new)`, i: MessageSquare },
             { k: "waitlist", l: `Waitlist (${waitlist.length})`, i: Mailbox },
-            { k: "careers", l: `Careers (${applications.filter(a => a.status === "new").length} new)`, i: Briefcase },
+            { k: "careers", l: `Careers (${applications.filter(a => a.status === "pending_review").length} new)`, i: Briefcase },
             { k: "talent", l: `Talent Pool (${talent.length})`, i: UserPlus },
           ].map(t => (
             <button

@@ -209,14 +209,15 @@ function ApplyForm({ position, onSuccess }: { position: Position; onSuccess: () 
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState<Country>(COUNTRIES.find(c => c.code === "AE") || COUNTRIES[0]);
+  const [nationality, setNationality] = useState("");
+  const [currentLocation, setCurrentLocation] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
-  const [portfolioUrl, setPortfolioUrl] = useState("");
-  const [githubUrl, setGithubUrl] = useState("");
-  const [currentCompany, setCurrentCompany] = useState("");
+  const [yearsExperience, setYearsExperience] = useState("");
+  const [expectedSalary, setExpectedSalary] = useState("");
+  const [noticePeriod, setNoticePeriod] = useState("");
   const [coverLetter, setCoverLetter] = useState("");
   const [cv, setCv] = useState<File | null>(null);
   const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
-  const [supportingFile, setSupportingFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -235,22 +236,25 @@ function ApplyForm({ position, onSuccess }: { position: Position; onSuccess: () 
     e.preventDefault();
     if (busy) return;
 
-    if (!firstName.trim() || !lastName.trim()) return toast.error("Please enter your name");
+    if (!firstName.trim() || !lastName.trim()) return toast.error("Please enter your full name");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast.error("Please enter a valid email");
     if (phone.replace(/\D/g, "").length < 6) return toast.error("Please enter a valid phone number");
+    if (!nationality.trim()) return toast.error("Please enter your nationality");
+    if (!currentLocation.trim()) return toast.error("Please enter your current location");
+    if (!yearsExperience.trim()) return toast.error("Please enter your years of experience");
+    if (!coverLetter.trim()) return toast.error("Please tell us why you're a fit");
     if (!cv) return toast.error("Please attach your CV");
 
-    for (const [file, label] of [[cv, "CV"], [portfolioFile, "Portfolio"], [supportingFile, "Supporting"]] as const) {
+    for (const [file, label] of [[cv, "CV"], [portfolioFile, "Portfolio/Proposal"]] as const) {
       const err = validFile(file);
       if (err) return toast.error(`${label}: ${err}`);
     }
 
     setBusy(true);
     try {
-      const [cvPath, portfolioPath, supportingPath] = await Promise.all([
+      const [cvPath, portfolioPath] = await Promise.all([
         upload(cv, "cv"),
         upload(portfolioFile, "portfolio"),
-        upload(supportingFile, "supporting"),
       ]);
 
       const { error } = await (supabase as any).from("job_applications").insert({
@@ -261,21 +265,21 @@ function ApplyForm({ position, onSuccess }: { position: Position; onSuccess: () 
         email: email.trim().toLowerCase(),
         phone: `+${country.dial} ${phone.trim()}`,
         country: country.name,
+        nationality: nationality.trim(),
+        current_location: currentLocation.trim(),
         linkedin_url: linkedinUrl.trim() || null,
-        portfolio_url: portfolioUrl.trim() || null,
-        github_url: githubUrl.trim() || null,
-        current_company: currentCompany.trim() || null,
-        cover_letter: coverLetter.trim() || null,
+        years_experience: yearsExperience.trim(),
+        expected_salary: expectedSalary.trim() || null,
+        notice_period: noticePeriod.trim() || null,
+        cover_letter: coverLetter.trim(),
         cv_path: cvPath,
         portfolio_path: portfolioPath,
-        supporting_path: supportingPath,
         source: typeof window !== "undefined" ? window.location.pathname : null,
       });
       if (error) throw error;
 
       setDone(true);
       toast.success("Application submitted");
-      setTimeout(onSuccess, 800);
     } catch (err: any) {
       toast.error(err?.message || "Could not submit application");
     } finally {
@@ -288,7 +292,9 @@ function ApplyForm({ position, onSuccess }: { position: Position; onSuccess: () 
       <div className="mt-8 rounded-2xl border border-glow/30 bg-glow/5 p-8 text-center">
         <CheckCircle2 className="mx-auto h-10 w-10 text-glow" />
         <h3 className="font-display mt-3 text-2xl font-semibold text-white">Application received</h3>
-        <p className="mt-2 text-sm text-silver/70">Thank you. Our team reviews every application personally and will reach out within 7 days if there's a fit.</p>
+        <p className="mt-2 text-sm text-silver/70">
+          Thank you for applying to SHOHO PAY. Your application has been submitted successfully and will be reviewed by our team.
+        </p>
       </div>
     );
   }
