@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import Layout from "./components/Layout";
 import Home from "./Home";
 import AuthPage from "./pages/Auth";
+import ResetPasswordPage from "./pages/ResetPassword";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import Features from "./pages/Features";
@@ -27,6 +28,7 @@ export default function App() {
           <LanguageSplash />
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/" element={<Layout><Home /></Layout>} />
