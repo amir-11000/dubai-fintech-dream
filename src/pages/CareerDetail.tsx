@@ -301,6 +301,10 @@ function ApplyForm({ position, onSuccess }: { position: Position; onSuccess: () 
 
   return (
     <form onSubmit={submit} className="mt-8 space-y-5">
+      <div className="rounded-xl hairline bg-white/[0.03] px-4 py-3 text-xs text-silver/70">
+        Applying for <span className="font-medium text-white">{position.title}</span> · {position.department} · {position.location}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="First name" required value={firstName} onChange={setFirstName} />
         <Field label="Last name" required value={lastName} onChange={setLastName} />
@@ -321,32 +325,49 @@ function ApplyForm({ position, onSuccess }: { position: Position; onSuccess: () 
             required
           />
         </div>
-        <p className="mt-1 text-[11px] text-silver/40">Country: <span className="text-silver/70">{country.name}</span></p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="LinkedIn (optional)" value={linkedinUrl} onChange={setLinkedinUrl} placeholder="https://linkedin.com/in/…" />
-        <Field label="Portfolio (optional)" value={portfolioUrl} onChange={setPortfolioUrl} placeholder="https://…" />
-        <Field label="GitHub (optional)" value={githubUrl} onChange={setGithubUrl} placeholder="https://github.com/…" />
-        <Field label="Current company (optional)" value={currentCompany} onChange={setCurrentCompany} />
+        <Field label="Nationality" required value={nationality} onChange={setNationality} placeholder="e.g. Emirati" />
+        <Field label="Current location" required value={currentLocation} onChange={setCurrentLocation} placeholder="City, Country" />
+      </div>
+
+      <Field label="LinkedIn profile" value={linkedinUrl} onChange={setLinkedinUrl} placeholder="https://linkedin.com/in/…" />
+
+      <div>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-silver/60">Position applying for</label>
+        <input
+          type="text"
+          value={position.title}
+          readOnly
+          className="w-full rounded-xl hairline bg-white/[0.02] px-4 py-3 text-sm text-silver/70 outline-none"
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field label="Years of experience" required value={yearsExperience} onChange={setYearsExperience} placeholder="e.g. 5" />
+        <Field label="Expected salary" value={expectedSalary} onChange={setExpectedSalary} placeholder="e.g. AED 15,000/mo" />
+        <Field label="Availability / Notice" value={noticePeriod} onChange={setNoticePeriod} placeholder="e.g. Immediate / 30 days" />
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs uppercase tracking-wider text-silver/60">Cover letter (optional)</label>
+        <label className="mb-1.5 block text-xs uppercase tracking-wider text-silver/60">
+          Short proposal — why are you a fit? <span className="text-glow">*</span>
+        </label>
         <textarea
           value={coverLetter}
           onChange={(e) => setCoverLetter(e.target.value)}
           rows={5}
           maxLength={4000}
-          placeholder="Tell us why you're excited about Shoho Pay…"
+          required
+          placeholder="Tell us why you're suitable for this role…"
           className="w-full resize-y rounded-xl hairline bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-silver/30 focus:ring-2 focus:ring-glow/40"
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <FileInput label="CV / Resume" required file={cv} onChange={setCv} />
-        <FileInput label="Portfolio (optional)" file={portfolioFile} onChange={setPortfolioFile} />
-        <FileInput label="Supporting (optional)" file={supportingFile} onChange={setSupportingFile} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <FileInput label="Upload CV" required file={cv} onChange={setCv} />
+        <FileInput label="Upload portfolio / proposal" file={portfolioFile} onChange={setPortfolioFile} />
       </div>
       <p className="text-[11px] text-silver/40">Allowed formats: PDF, DOCX, PPTX. Max 10 MB per file.</p>
 
