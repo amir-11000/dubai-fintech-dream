@@ -1,20 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShieldCheck, Eye, EyeOff, Loader2, ArrowLeft, Mail, Phone } from "lucide-react";
+import { ShieldCheck, Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "../integrations/supabase/client";
 import { useAuth } from "../lib/auth";
-import CountrySelect from "../components/CountrySelect";
-import { COUNTRIES, toE164, validatePhone, type Country } from "../lib/countries";
 
 export default function AdminLogin() {
   const nav = useNavigate();
   const { user, isAdmin, loading } = useAuth();
-  const [mode, setMode] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
-  const [country, setCountry] = useState<Country>(COUNTRIES.find(c => c.code === "AE") || COUNTRIES[0]);
-  const [localPhone, setLocalPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -25,25 +20,20 @@ export default function AdminLogin() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.includes("@")) { toast.error("Enter a valid email"); return; }
     if (!password || password.length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
     }
     setSubmitting(true);
     try {
-      let creds: any;
-      if (mode === "email") {
-        if (!email.includes("@")) { toast.error("Enter a valid email"); setSubmitting(false); return; }
-        creds = { email: email.trim().toLowerCase(), password };
-      } else {
-        if (!validatePhone(country, localPhone)) { toast.error("Invalid phone number"); setSubmitting(false); return; }
-        creds = { phone: toE164(country, localPhone), password };
-      }
-      const { data, error } = await supabase.auth.signInWithPassword(creds);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
       if (error) throw error;
       if (!data.user) throw new Error("Login failed");
 
-      // Verify admin role
       const { data: roleRow } = await supabase
         .from("user_roles").select("role").eq("user_id", data.user.id).eq("role", "admin").maybeSingle();
       if (!roleRow) {
@@ -85,59 +75,19 @@ export default function AdminLogin() {
             <p className="text-sm text-muted-foreground mt-1">Restricted access · Shoho Pay</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-1 p-1 mb-5 rounded-lg bg-muted/50 border border-border">
-            <button
-              type="button"
-              onClick={() => setMode("email")}
-              className={`flex items-center justify-center gap-2 py-2 text-sm rounded-md transition ${mode === "email" ? "bg-background text-foreground shadow" : "text-muted-foreground"}`}
-            >
-              <Mail className="w-4 h-4" /> Email
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("phone")}
-              className={`flex items-center justify-center gap-2 py-2 text-sm rounded-md transition ${mode === "phone" ? "bg-background text-foreground shadow" : "text-muted-foreground"}`}
-            >
-              <Phone className="w-4 h-4" /> Phone
-            </button>
-          </div>
-
           <form onSubmit={onSubmit} className="space-y-4">
-            {mode === "email" ? (
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Email address</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@example.com"
-                  className="w-full px-4 py-3 rounded-lg bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
-                  autoComplete="email"
-                  required
-                />
-              </div>
-            ) : (
-              <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Phone number</label>
-                <div className="flex gap-2">
-                  <CountrySelect value={country} onChange={setCountry} />
-                  <input
-                    type="tel"
-                    value={localPhone}
-                    onChange={(e) => setLocalPhone(e.target.value)}
-                    placeholder="55 218 8004"
-                    className="flex-1 min-w-0 px-4 py-3 rounded-lg bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
-                    autoComplete="tel"
-                    required
-                  />
-                </div>
-                {localPhone && (
-                  <p className="mt-1.5 text-xs text-muted-foreground">
-                    Will sign in as <span className="font-mono text-foreground">{toE164(country, localPhone)}</span>
-                  </p>
-                )}
-              </div>
-            )}
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Email address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                className="w-full px-4 py-3 rounded-lg bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
+                autoComplete="email"
+                required
+              />
+            </div>
 
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">Password</label>
