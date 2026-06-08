@@ -331,6 +331,77 @@ const Hero = () => (
 );
 
 /* =========================================================
+   HOME · VIP TEASER
+========================================================= */
+const VIP_CARDS = [
+  { icon: Star,         title: "Dedicated Personal RM",   body: "One professional assigned exclusively to your account." },
+  { icon: Globe2,       title: "Available Worldwide",     body: "Support wherever you travel." },
+  { icon: Zap,          title: "Priority Service",        body: "Faster issue resolution and transaction support." },
+  { icon: Send,         title: "Direct Communication",    body: "Chat, voice calls, and video calls directly inside the app." },
+  { icon: ShieldCheck,  title: "24/7 Availability",       body: "Including weekends and public holidays." },
+  { icon: Sparkles,     title: "VIP Banking Experience",  body: "Private banking level service through a modern fintech platform." },
+];
+const VIP_FLOW = ["VIP Customer", "Dedicated RM", "24/7 Support", "Priority Service", "Premium Experience"];
+
+const HomeVipSection = () => (
+  <section className="relative overflow-hidden py-20 md:py-28">
+    <div className="pointer-events-none absolute inset-0 -z-10">
+      <div className="absolute left-1/2 top-1/2 h-[600px] w-[1000px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+           style={{ background: "radial-gradient(closest-side, rgba(201,168,76,0.10), transparent 70%)" }} />
+    </div>
+    <Container>
+      <div className="mx-auto max-w-3xl text-center">
+        <Eyebrow tone="gold">Shoho Pay VIP</Eyebrow>
+        <h2 className="font-display mt-5 text-balance text-4xl font-semibold text-gradient-silver md:text-6xl">
+          Private Banking Meets <span className="text-gradient-gold">Modern Fintech.</span>
+        </h2>
+        <p className="mx-auto mt-5 max-w-2xl text-base text-silver/75 md:text-lg">
+          For qualified VIP customers, ShohoPay provides a dedicated Relationship Manager available worldwide 24/7.
+        </p>
+      </div>
+
+      <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {VIP_CARDS.map((c, i) => (
+          <Reveal key={c.title} delay={i * 0.05}>
+            <div className="group relative h-full overflow-hidden rounded-3xl glass-strong p-6 transition hover:-translate-y-1 hover:border-gold/40">
+              <div className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition group-hover:opacity-100"
+                   style={{ background: "radial-gradient(400px circle at 50% 0%, rgba(201,168,76,0.12), transparent 60%)" }} />
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-gold/30 to-gold/5 hairline">
+                <c.icon className="h-5 w-5 text-gold" />
+              </div>
+              <h3 className="mt-5 font-display text-lg font-semibold text-snow">{c.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-silver/75">{c.body}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+
+      <Reveal delay={0.1}>
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-2 md:gap-3">
+          {VIP_FLOW.map((s, i) => (
+            <div key={s} className="flex items-center gap-2 md:gap-3">
+              <div className="rounded-full bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-snow hairline md:text-sm">{s}</div>
+              {i < VIP_FLOW.length - 1 && <ArrowRight className="h-3.5 w-3.5 text-gold/70" />}
+            </div>
+          ))}
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.15}>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Link to="/vip" className="group inline-flex items-center gap-1.5 rounded-full bg-gold-grad px-5 py-3 text-sm font-medium text-ink shadow-[0_8px_30px_-8px_rgba(201,168,76,0.6)] transition hover:opacity-95">
+            Explore VIP <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </Link>
+          <Link to="/uae-nationals" className="rounded-full glass px-5 py-3 text-sm text-snow hover:bg-white/10">
+            UAE Nationals Program
+          </Link>
+        </div>
+      </Reveal>
+    </Container>
+  </section>
+);
+
+/* =========================================================
    TRUSTED BY
 ========================================================= */
 const press = ["FORBES MIDDLE EAST", "GULF NEWS", "ARABIAN BUSINESS", "KHALEEJ TIMES", "TECHCRUNCH", "BLOOMBERG"];
@@ -973,6 +1044,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <HomeVipSection />
       <TrustedBy />
       <ProductDemo />
       <Features />
