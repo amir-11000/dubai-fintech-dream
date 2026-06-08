@@ -134,23 +134,42 @@ export default function AuthPage() {
           <div className="mt-10 rounded-3xl glass-strong p-6 md:p-8">
             {!sentTo && mode !== "forgot" && (
               <>
-                <GoogleButton
-                  busy={busy}
-                  onClick={async () => {
-                    setBusy(true);
-                    const result = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: window.location.origin,
-                    });
-                    if (result.redirected) return;
-                    setBusy(false);
-                    if (result.error) {
-                      toast.error(result.error.message || "Google sign-in failed");
-                      return;
-                    }
-                    toast.success("Welcome");
-                    nav("/", { replace: true });
-                  }}
-                />
+                <div className="space-y-2.5">
+                  <GoogleButton
+                    busy={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      const result = await lovable.auth.signInWithOAuth("google", {
+                        redirect_uri: window.location.origin,
+                      });
+                      if (result.redirected) return;
+                      setBusy(false);
+                      if (result.error) {
+                        toast.error(result.error.message || "Google sign-in failed");
+                        return;
+                      }
+                      toast.success("Welcome");
+                      nav("/", { replace: true });
+                    }}
+                  />
+                  <AppleButton
+                    busy={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      const result = await lovable.auth.signInWithOAuth("apple", {
+                        redirect_uri: window.location.origin,
+                      });
+                      if (result.redirected) return;
+                      setBusy(false);
+                      if (result.error) {
+                        toast.error(result.error.message || "Apple sign-in failed");
+                        return;
+                      }
+                      toast.success("Welcome");
+                      nav("/", { replace: true });
+                    }}
+                  />
+                </div>
                 <div className="my-5 flex items-center gap-3 text-[10px] uppercase tracking-widest text-silver/40">
                   <span className="h-px flex-1 bg-white/10" />
                   or continue with email
@@ -305,6 +324,20 @@ const SubmitButton = ({ busy, children }: { busy: boolean; children: React.React
     className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90 disabled:opacity-60"
   >
     {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : children}
+  </button>
+);
+
+const AppleButton = ({ busy, onClick }: { busy: boolean; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={busy}
+    className="flex w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-ink transition hover:bg-white/90 disabled:opacity-60"
+  >
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.05 12.04c-.02-2.06 1.68-3.05 1.76-3.1-.96-1.4-2.46-1.6-2.99-1.62-1.27-.13-2.48.75-3.13.75-.65 0-1.65-.73-2.71-.71-1.39.02-2.68.81-3.4 2.06-1.45 2.52-.37 6.25 1.04 8.3.69 1 1.51 2.13 2.58 2.09 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.6.67 2.69.65 1.11-.02 1.81-1.02 2.49-2.03.78-1.16 1.1-2.29 1.12-2.35-.02-.01-2.15-.83-2.17-3.29zM15.02 5.84c.57-.7.96-1.66.85-2.62-.83.04-1.83.55-2.42 1.24-.53.61-1 1.59-.87 2.53.92.07 1.87-.46 2.44-1.15z"/>
+    </svg>
+    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue with Apple"}
   </button>
 );
 
