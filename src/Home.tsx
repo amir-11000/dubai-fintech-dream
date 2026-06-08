@@ -1053,7 +1053,7 @@ export default function Home() {
       
       <GoldSection />
       <SecuritySection />
-      
+      <FAQ />
       <FinalCTA />
     </>
   );
