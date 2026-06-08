@@ -54,10 +54,20 @@ const toCSV = (rows: Record<string, any>[]) => {
   if (!rows.length) return "";
   const headers = Object.keys(rows[0]);
   const esc = (v: any) => {
-    const s = v == null ? "" : String(v);
+    let s = v == null ? "" : String(v);
+    // Neutralize CSV formula injection (Excel/Sheets execute leading =, +, -, @, tab, CR)
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   return [headers.join(","), ...rows.map(r => headers.map(h => esc(r[h])).join(","))].join("\n");
+};
+
+const safeHttpUrl = (u: string | null | undefined): string => {
+  if (!u) return "#";
+  try {
+    const url = new URL(u, window.location.origin);
+    return (url.protocol === "http:" || url.protocol === "https:") ? url.toString() : "#";
+  } catch { return "#"; }
 };
 
 const download = (filename: string, content: string) => {
@@ -642,9 +652,9 @@ function ApplicationCard({ app, onStatus, onNotes, onDownload, onDelete }: {
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-silver/60">
             <a href={`mailto:${app.email}`} className="inline-flex items-center gap-1.5 hover:text-white"><Mail className="h-3 w-3" /> {app.email}</a>
             <a href={`tel:${app.phone}`} className="inline-flex items-center gap-1.5 hover:text-white"><Phone className="h-3 w-3" /> {app.phone}</a>
-            {app.linkedin_url && <a href={app.linkedin_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">LinkedIn <ExternalLink className="h-3 w-3" /></a>}
-            {app.portfolio_url && <a href={app.portfolio_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">Portfolio <ExternalLink className="h-3 w-3" /></a>}
-            {app.github_url && <a href={app.github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">GitHub <ExternalLink className="h-3 w-3" /></a>}
+            {app.linkedin_url && <a href={safeHttpUrl(app.linkedin_url)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">LinkedIn <ExternalLink className="h-3 w-3" /></a>}
+            {app.portfolio_url && <a href={safeHttpUrl(app.portfolio_url)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">Portfolio <ExternalLink className="h-3 w-3" /></a>}
+            {app.github_url && <a href={safeHttpUrl(app.github_url)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white">GitHub <ExternalLink className="h-3 w-3" /></a>}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
