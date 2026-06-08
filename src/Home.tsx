@@ -95,27 +95,27 @@ export const Nav = () => {
           <img src="/logo.png" alt="Shoho Pay" className="h-9 w-9 rounded-lg object-contain" />
           <span className="font-display text-sm font-semibold tracking-[0.22em] text-snow">SHOHO PAY</span>
         </Link>
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Primary">
           {navLinks.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `rounded-full px-4 py-2 text-sm transition ${isActive ? "bg-white/10 text-snow" : "text-silver hover:text-snow"}`
+                `rounded-full px-3 py-2 text-[13px] transition ${isActive ? "bg-white/10 text-snow" : "text-silver hover:text-snow"}`
               }
             >
               {l.label}
             </NavLink>
           ))}
         </nav>
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <LanguageSwitcher />
-          <Link to="/auth" className="rounded-full px-4 py-2 text-sm text-silver hover:text-snow">{t("nav.signin")}</Link>
-          <Link to="/waitlist" onClick={() => track("cta_click", { button_label: "nav_waitlist" })} className="group inline-flex items-center gap-1.5 rounded-full bg-glow px-4 py-2 text-sm font-medium text-white shadow-[0_8px_30px_-8px_rgba(45,127,255,0.6)] transition hover:bg-glow/90">
+          <Link to="/auth" className="rounded-full px-3 py-2 text-[13px] text-silver hover:text-snow">{t("nav.signin")}</Link>
+          <Link to="/waitlist" onClick={() => track("cta_click", { button_label: "nav_waitlist" })} className="group inline-flex items-center gap-1.5 rounded-full bg-glow px-4 py-2 text-[13px] font-medium text-white shadow-[0_8px_30px_-8px_rgba(45,127,255,0.6)] transition hover:bg-glow/90">
             {t("nav.join_waitlist")} <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
           </Link>
         </div>
-        <button onClick={() => setOpen(true)} aria-label={t("nav.open_menu")} aria-expanded={open} className="grid h-10 w-10 place-items-center rounded-full glass md:hidden">
+        <button onClick={() => setOpen(true)} aria-label={t("nav.open_menu")} aria-expanded={open} className="grid h-10 w-10 place-items-center rounded-full glass lg:hidden">
           <Menu className="h-4 w-4 text-snow" />
         </button>
       </Container>
@@ -131,7 +131,7 @@ export const Nav = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               onClick={() => setOpen(false)}
-              className="fixed inset-0 z-[60] bg-ink/70 backdrop-blur-xl md:hidden"
+              className="fixed inset-0 z-[60] bg-ink/70 backdrop-blur-xl lg:hidden"
               aria-hidden
             />
             {/* Sheet */}
@@ -144,7 +144,7 @@ export const Nav = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "-100%", opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-x-0 top-0 z-[70] flex max-h-[100dvh] flex-col overflow-y-auto overscroll-contain bg-ink/95 backdrop-blur-2xl pb-[max(env(safe-area-inset-bottom),1rem)] md:hidden"
+              className="fixed inset-x-0 top-0 z-[70] flex max-h-[100dvh] flex-col overflow-y-auto overscroll-contain bg-ink/95 backdrop-blur-2xl pb-[max(env(safe-area-inset-bottom),1rem)] lg:hidden"
               style={{ paddingTop: "max(env(safe-area-inset-top), 0px)" }}
             >
               <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
