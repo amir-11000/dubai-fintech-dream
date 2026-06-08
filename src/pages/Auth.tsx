@@ -134,23 +134,42 @@ export default function AuthPage() {
           <div className="mt-10 rounded-3xl glass-strong p-6 md:p-8">
             {!sentTo && mode !== "forgot" && (
               <>
-                <GoogleButton
-                  busy={busy}
-                  onClick={async () => {
-                    setBusy(true);
-                    const result = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: window.location.origin,
-                    });
-                    if (result.redirected) return;
-                    setBusy(false);
-                    if (result.error) {
-                      toast.error(result.error.message || "Google sign-in failed");
-                      return;
-                    }
-                    toast.success("Welcome");
-                    nav("/", { replace: true });
-                  }}
-                />
+                <div className="space-y-2.5">
+                  <GoogleButton
+                    busy={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      const result = await lovable.auth.signInWithOAuth("google", {
+                        redirect_uri: window.location.origin,
+                      });
+                      if (result.redirected) return;
+                      setBusy(false);
+                      if (result.error) {
+                        toast.error(result.error.message || "Google sign-in failed");
+                        return;
+                      }
+                      toast.success("Welcome");
+                      nav("/", { replace: true });
+                    }}
+                  />
+                  <AppleButton
+                    busy={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      const result = await lovable.auth.signInWithOAuth("apple", {
+                        redirect_uri: window.location.origin,
+                      });
+                      if (result.redirected) return;
+                      setBusy(false);
+                      if (result.error) {
+                        toast.error(result.error.message || "Apple sign-in failed");
+                        return;
+                      }
+                      toast.success("Welcome");
+                      nav("/", { replace: true });
+                    }}
+                  />
+                </div>
                 <div className="my-5 flex items-center gap-3 text-[10px] uppercase tracking-widest text-silver/40">
                   <span className="h-px flex-1 bg-white/10" />
                   or continue with email
