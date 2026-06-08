@@ -15,6 +15,8 @@ import Waitlist from "./pages/Waitlist";
 import Careers from "./pages/Careers";
 import CareerDetail from "./pages/CareerDetail";
 import TalentPool from "./pages/TalentPool";
+import Vip from "./pages/Vip";
+import UaeNationals from "./pages/UaeNationals";
 import { AuthProvider } from "./lib/auth";
 import { LanguageProvider } from "./lib/i18n";
 import LanguageSplash from "./components/LanguageSplash";
@@ -42,6 +44,8 @@ export default function App() {
             <Route path="/careers" element={<Layout><Careers /></Layout>} />
             <Route path="/careers/talent-pool" element={<Layout><TalentPool /></Layout>} />
             <Route path="/careers/:slug" element={<Layout><CareerDetail /></Layout>} />
+            <Route path="/vip" element={<Layout><Vip /></Layout>} />
+            <Route path="/uae-nationals" element={<Layout><UaeNationals /></Layout>} />
             <Route path="*" element={<Layout><Home /></Layout>} />
           </Routes>
         </BrowserRouter>
