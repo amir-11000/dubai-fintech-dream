@@ -992,7 +992,7 @@ const FinalCTA = () => (
    FOOTER
 ========================================================= */
 const footerColDefs = [
-  { titleKey: "footer.product", links: [["nav.features","/features"], ["nav.pricing","/pricing"], ["nav.security","/security"], ["footer.waitlist","/waitlist"]] as const },
+  { titleKey: "footer.product", links: [["nav.features","/features"], ["nav.security","/security"], ["footer.waitlist","/waitlist"]] as const },
   { titleKey: "footer.company", links: [["nav.about","/about"], ["nav.careers","/careers"], ["nav.contact","/contact"]] as const },
   { titleKey: "footer.legal",   links: [["footer.privacy","/contact"], ["footer.terms","/contact"], ["footer.compliance","/security"]] as const },
 ];
