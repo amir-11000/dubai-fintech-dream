@@ -843,7 +843,7 @@ const PricingPreview = () => (
    FAQ
 ========================================================= */
 const faqs = [
-  { q: "Is Shoho Pay licensed in the UAE?", a: "Yes — Shoho Pay operates aligned with UAE Central Bank guidelines and is registered in DIFC. Custody and gold vaulting are handled by regulated institutional partners." },
+  
   { q: "What does Billy, the AI assistant, actually do?", a: "Billy categorises spending in real time, builds adaptive budgets, forecasts your runway, negotiates better subscriptions and quietly auto-saves or auto-invests according to rules you set." },
   { q: "Can I redeem my digital gold as physical bars?", a: "Absolutely. Any balance over 10g can be redeemed as physical 24K gold from our Dubai partner vault, with delivery or in-person collection." },
   { q: "Which currencies and assets are supported?", a: "AED, USD, EUR, GBP, and 30+ more currencies. Plus BTC, ETH and majors for crypto, and 24K gold by the gram." },
