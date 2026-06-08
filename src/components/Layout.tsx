@@ -1,6 +1,7 @@
 import { ReactNode, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Nav, Footer } from "../Home";
+import BackToTop from "./BackToTop";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
@@ -10,6 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <Nav />
       <main>{children}</main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }
