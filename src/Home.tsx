@@ -50,7 +50,7 @@ const navLinkDefs = [
   { to: "/features",       key: "nav.features" },
   { to: "/vip",            key: "nav.vip" },
   { to: "/uae-nationals",  key: "nav.uae_nationals" },
-  { to: "/pricing",        key: "nav.pricing" },
+  
   { to: "/security",       key: "nav.security" },
   { to: "/careers",        key: "nav.careers" },
   { to: "/about",          key: "nav.about" },
