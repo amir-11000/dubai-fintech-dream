@@ -1053,8 +1053,6 @@ export default function Home() {
       
       <GoldSection />
       <SecuritySection />
-      <Testimonials />
-      <PricingPreview />
       <FAQ />
       <FinalCTA />
     </>
