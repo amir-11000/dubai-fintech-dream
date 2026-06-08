@@ -848,6 +848,7 @@ const faqs = [
   { q: "Can I redeem my digital gold as physical bars?", a: "Absolutely. Any balance over 10g can be redeemed as physical 24K gold from our Dubai partner vault, with delivery or in-person collection." },
   { q: "Which currencies and assets are supported?", a: "AED, USD, EUR, GBP, and 30+ more currencies. Plus BTC, ETH and majors for crypto, and 24K gold by the gram." },
   { q: "How is my money protected?", a: "256-bit end-to-end encryption, biometric login, multi-sig cold custody for crypto, insured gold vaulting, ISO 27001 and PCI-DSS aligned operations." },
+  { q: "Is there a VIP account for high-value clients?", a: "Yes — Shoho Pay VIP is designed for high-value clients who expect more than a digital wallet. Qualifying customers receive a dedicated Personal Relationship Manager, premium banking experience, early access to new products and investment solutions, and exclusive wealth services. Membership is by invitation or qualification review — request an invitation from the VIP page." },
 ];
 
 const FAQ = () => {
