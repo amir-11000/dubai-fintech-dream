@@ -7,7 +7,7 @@ import ResetPasswordPage from "./pages/ResetPassword";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
+
 import Security from "./pages/Security";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -36,7 +36,7 @@ export default function App() {
             <Route path="/admin" element={<RequireVerifiedEmail><Admin /></RequireVerifiedEmail>} />
             <Route path="/" element={<Layout><Home /></Layout>} />
             <Route path="/features" element={<Layout><Features /></Layout>} />
-            <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
+            
             <Route path="/security" element={<Layout><Security /></Layout>} />
             <Route path="/about" element={<Layout><About /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
